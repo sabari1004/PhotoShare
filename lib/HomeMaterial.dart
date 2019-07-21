@@ -64,18 +64,18 @@ class _HomeMaterialState extends State<HomeMaterial> {
                         children: [
                           new ListTile(
                             leading: const Icon(Icons.computer),
-                            title: new TextField(
+                            title: new TextFormField(
                               decoration:
                                   InputDecoration(labelText: 'IP Address'),
-                                controller: myController,
-                              /*initialValue: _user.ipAddress,
+                                //controller: myController,
+                              initialValue: _user.ipAddress,
                               validator: (value) {
                                 if (value.isEmpty) {
                                   return 'Please enter IP address';
                                 }
                               },
                               onSaved: (val) =>
-                                  setState(() => _user.ipAddress = val),*/
+                                  setState(() => _user.ipAddress = val),
                             ),
                           ),
                           new ListTile(
