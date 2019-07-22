@@ -24,6 +24,7 @@ dependencies:
   connectivity: ^0.4.2
   fluttertoast: ^2.0.0
   modal_progress_hud: ^0.1.2
+  http: ^0.12.0+2
 
 dev_dependencies:
   flutter_test:

@@ -10,10 +10,15 @@ class HomeMaterial extends StatefulWidget {
 
 class _HomeMaterialState extends State<HomeMaterial> {
   final _formKey = GlobalKey<FormState>();
+  var _passKey = GlobalKey<FormFieldState>();
   final _user = User();
+
   // Create a text controller and use it to retrieve the current value
   // of the TextField.
   final myController = TextEditingController();
+
+  // Initially password is obscure
+  bool _obscureText = true;
 
   @override
   void dispose() {
@@ -23,8 +28,14 @@ class _HomeMaterialState extends State<HomeMaterial> {
   }
 
   @override
+  initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomPadding: false,
         appBar: AppBar(
           title: Text('Profile'),
           actions: <Widget>[
@@ -32,10 +43,9 @@ class _HomeMaterialState extends State<HomeMaterial> {
             IconButton(
               icon: Icon(Icons.save),
               onPressed: () {
-                /*Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomeMaterial()),
-                );*/
+              // Validate returns true if the form is valid, or false
+              // otherwise.
+              if (_formKey.currentState.validate()) {
                 Fluttertoast.showToast(
                     msg: "Settings Saved",
                     toastLength: Toast.LENGTH_SHORT,
@@ -49,13 +59,14 @@ class _HomeMaterialState extends State<HomeMaterial> {
                   context,
                   MaterialPageRoute(builder: (context) => FileManager()),
                 );
+              }
               },
             ),
           ],
         ),
         body: Container(
-            /*padding:
-                const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),*/
+            padding:
+                const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
             child: Builder(
                 builder: (context) => Form(
                     key: _formKey,
@@ -68,7 +79,6 @@ class _HomeMaterialState extends State<HomeMaterial> {
                               decoration:
                                   InputDecoration(labelText: 'IP Address'),
                                 //controller: myController,
-                              initialValue: _user.ipAddress,
                               validator: (value) {
                                 if (value.isEmpty) {
                                   return 'Please enter IP address';
@@ -110,6 +120,7 @@ class _HomeMaterialState extends State<HomeMaterial> {
                             title: new TextFormField(
                                 decoration:
                                     InputDecoration(labelText: 'Password'),
+                                //obscureText: _obscureText,
                                 validator: (value) {
                                   if (value.isEmpty) {
                                     return 'Please enter your password';
@@ -121,34 +132,31 @@ class _HomeMaterialState extends State<HomeMaterial> {
                           new ListTile(
                             leading: const Icon(Icons.vpn_key),
                             title: new TextFormField(
+                                //obscureText: _obscureText,
                                 decoration:
                                     InputDecoration(labelText: 'License Key'),
                                 validator: (value) {
                                   if (value.isEmpty) {
                                     return 'Please enter the license key';
+                                  }else if(value!="Abcdef@123&"){
+                                    return 'Invalid license key';
                                   }
                                 },
                                 onSaved: (val) =>
-                                    setState(() => _user.licenseKey = val)),
+                                    setState(() => _user.licenseKey = val)
+                            ),
+
                           ),
                         ])))));
   }
 
-  _showDialog(BuildContext context) {
-    Scaffold.of(context)
-        .showSnackBar(SnackBar(content: Text('Submitting form')));
-  }
 }
 
 class User {
   String ipAddress = '';
   String folderPath = '';
-  String firstName = '';
   String userName = '';
   String passWord = '';
   String licenseKey = '';
 
-  save() {
-    print('saving user using a web service');
-  }
 }
