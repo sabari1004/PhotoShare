@@ -32,8 +32,9 @@ class _FileManagerState extends State<FileManager> {
   @override
   void initState() {
     super.initState();
-    getPermission();
-    getConnectionStatus();
+      getPermission();
+      getConnectionStatus();
+      showAlertDialog(context);
   }
 
   void _submit() {
@@ -128,20 +129,27 @@ class _FileManagerState extends State<FileManager> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      // display modal progress HUD (heads-up display, or indicator)
-      // when in async call
-      body: ModalProgressHUD(
-        inAsyncCall: _saving,
-        // demo of some additional parameters
-        opacity: 0.5,
-        progressIndicator: CircularProgressIndicator(
-          backgroundColor: Colors.blueAccent,
-          semanticsLabel: "Loading",
+    DateTime expired = new DateTime(2019,9,1);
+    int diffDays = expired.difference(DateTime.now()).inDays;
+    print(diffDays);
+    if(diffDays<= 5) {
+      return new Scaffold(
+        // display modal progress HUD (heads-up display, or indicator)
+        // when in async call
+        body: ModalProgressHUD(
+          inAsyncCall: _saving,
+          // demo of some additional parameters
+          opacity: 0.5,
+          progressIndicator: CircularProgressIndicator(
+            backgroundColor: Colors.blueAccent,
+            semanticsLabel: "Loading",
+          ),
+          child: _buildWidget(),
         ),
-        child: _buildWidget(),
-      ),
-    );
+      );
+    } else{
+      
+    }
   }
 
   Widget _buildWidget() {
@@ -376,6 +384,30 @@ class _FileManagerState extends State<FileManager> {
   uploadFile(String path) {
     final Map<String, dynamic> args = <String, dynamic>{'path': path};
     _uploadChannel.invokeMethod('uploadFile', args);
+  }
+
+
+  showAlertDialog(BuildContext context) {
+    // set up the button
+    Widget okButton = FlatButton(
+      child: Text("OK"),
+      onPressed: () { },
+    );
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("My title"),
+      content: Text("This is my message."),
+      actions: [
+        okButton,
+      ],
+    );
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 }
 
