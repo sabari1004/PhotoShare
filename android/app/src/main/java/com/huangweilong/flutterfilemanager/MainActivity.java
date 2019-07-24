@@ -33,12 +33,12 @@ public class MainActivity extends FlutterActivity {
     private static Context mContext = null;
     private static final String METHOD_CHANNEL = "openFileChannel";
     private static final String UPLOAD_CHANNEL = "uploadChannel";
-    private static final String ip = "192.168.2.48";
+    private static final String ip = "192.168.2.47";
 /*    private static final String password = "Aa1234567$";
     private static final String username = "-prj-maruf.khan";*/
     private static final String password = "Few@HuPhot0$";
     private static final String username = "-svc-HHU.PU";
-    private static final String strPCPath = "smb://192.168.2.48/NotificationPhotosUpload/";
+    private static final String strPCPath = "smb://192.168.2.47/NotificationPhotosUpload/";
     private static final String strSdcardPath = Environment.getExternalStorageDirectory()+"/Pictures";
 
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter/services.dart';
-import 'package:flutter_file_manager/file_manager1.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:simple_permissions/simple_permissions.dart';
 import 'SuggestionsPage.dart';
@@ -12,12 +11,12 @@ import 'package:connectivity/connectivity.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'HomeMaterial.dart';
 
-class FileManager extends StatefulWidget {
+class FileManager1 extends StatefulWidget {
   @override
-  _FileManagerState createState() => _FileManagerState();
+  _FileManager1State createState() => _FileManager1State();
 }
 
-class _FileManagerState extends State<FileManager> {
+class _FileManager1State extends State<FileManager1> {
   List<FileSystemEntity> files = [];
   MethodChannel _channel = MethodChannel('openFileChannel');
   MethodChannel _uploadChannel = MethodChannel('uploadChannel');
@@ -97,7 +96,7 @@ class _FileManagerState extends State<FileManager> {
         textColor: Colors.white);
     Navigator.of(context)
         .push(new MaterialPageRoute(builder: (BuildContext context) {
-      return new FileManager();
+      return new FileManager1();
     }));
   }
 
@@ -129,9 +128,6 @@ class _FileManagerState extends State<FileManager> {
 
   @override
   Widget build(BuildContext context) {
-    DateTime expired = new DateTime(2019, 9, 1);
-    int diffDays = expired.difference(DateTime.now()).inDays;
-    if (diffDays >= 5) {
       return new Scaffold(
         // display modal progress HUD (heads-up display, or indicator)
         // when in async call
@@ -143,40 +139,10 @@ class _FileManagerState extends State<FileManager> {
             backgroundColor: Colors.blueAccent,
             semanticsLabel: "Loading",
           ),
-          child: _buildWidget(),
+            child: _buildWidget(),
         ),
       );
-    } else if (diffDays <= 5 && diffDays >0){
-      return new Scaffold(
-        // display modal progress HUD (heads-up display, or indicator)
-        // when in async call
-        body: ModalProgressHUD(
-          inAsyncCall: _saving,
-          // demo of some additional parameters
-          opacity: 0.5,
-          progressIndicator: CircularProgressIndicator(
-            backgroundColor: Colors.blueAccent,
-            semanticsLabel: "Loading",
-          ),
-          child: _buildWidget2(),
-        ),
-      );
-    } else{
-       return new Scaffold(
-        // display modal progress HUD (heads-up display, or indicator)
-        // when in async call
-        body: ModalProgressHUD(
-          inAsyncCall: _saving,
-          // demo of some additional parameters
-          opacity: 0.5,
-          progressIndicator: CircularProgressIndicator(
-            backgroundColor: Colors.blueAccent,
-            semanticsLabel: "Loading",
-          ),
-          child: _buildWidget2(),
-        ),
-      );
-    }
+
   }
 
   Widget _buildWidget() {
@@ -199,7 +165,7 @@ class _FileManagerState extends State<FileManager> {
           ),
           elevation: 0.4,
           centerTitle: true,
-          backgroundColor: Colors.blueAccent,
+          backgroundColor:  Colors.blueAccent,
           leading: parentDir?.path == sDCardDir
               ? Container()
               : IconButton(
@@ -258,56 +224,6 @@ class _FileManagerState extends State<FileManager> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildWidget1() {
-    DateTime expired = new DateTime(2019, 9, 1);
-    int diffDays = expired.difference(DateTime.now()).inDays;
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('License Expiry Notification'),
-      ),
-      body: Center(
-        child: Container(
-          child: Text(
-            '     License Expiring in '+ diffDays.toString() + ' days.',
-            style: Theme.of(context).textTheme.title,
-          ),
-        ),
-      ),
-      floatingActionButton: Theme(
-        data: Theme.of(context).copyWith(
-          colorScheme:
-              Theme.of(context).colorScheme.copyWith(secondary: Colors.blueAccent),
-        ),
-        child: FloatingActionButton.extended(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => FileManager1()),
-            );
-          },
-          label: Text("Close"),
-          tooltip: "First",
-        ), 
-      )     
-    );
-  }
-
-    Widget _buildWidget2() {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('License Expiry Notification'),
-      ),
-      body: Center(
-        child: Container(
-          child: Text(
-            '         License Expired',
-            style: Theme.of(context).textTheme.title,
-          ),
-        ),
-      )    
     );
   }
 
@@ -451,11 +367,12 @@ class _FileManagerState extends State<FileManager> {
     _uploadChannel.invokeMethod('uploadFile', args);
   }
 
+
   showAlertDialog(BuildContext context) {
     // set up the button
     Widget okButton = FlatButton(
       child: Text("OK"),
-      onPressed: () {},
+      onPressed: () { },
     );
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
