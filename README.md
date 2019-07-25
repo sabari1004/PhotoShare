@@ -1,4 +1,4 @@
-# flutter_file_manager
+Flutter File Share Application
 
 Flutter File Share App using SMB
 
