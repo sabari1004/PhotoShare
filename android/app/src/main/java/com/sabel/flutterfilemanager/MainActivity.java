@@ -1,4 +1,4 @@
-package com.huangweilong.flutterfilemanager;
+package com.sabel.flutterfilemanager;
 
 import android.content.Context;
 import android.content.Intent;

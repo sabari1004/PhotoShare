@@ -4,14 +4,24 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'file_manager.dart';
 
 class HomeMaterial extends StatefulWidget {
+  String ipAddress = '';
+  String folderPath = '';
+  String userName = '';
+  String passWord = '';
+  String licenseKey = '';
   @override
-  _HomeMaterialState createState() => _HomeMaterialState();
+  _HomeMaterialState createState() => _HomeMaterialState(ipAddress, folderPath, userName, passWord, licenseKey);
 }
 
 class _HomeMaterialState extends State<HomeMaterial> {
   final _formKey = GlobalKey<FormState>();
-  var _passKey = GlobalKey<FormFieldState>();
-  final _user = User();
+  String ipAddress = '';
+  String folderPath = '';
+  String userName = '';
+  String passWord = '';
+  String licenseKey = '';
+
+  _HomeMaterialState(this.ipAddress,this.folderPath,this.userName,this.passWord,this.licenseKey);
 
   // Create a text controller and use it to retrieve the current value
   // of the TextField.
@@ -85,7 +95,7 @@ class _HomeMaterialState extends State<HomeMaterial> {
                                 }
                               },
                               onSaved: (val) =>
-                                  setState(() => _user.ipAddress = val),
+                                  setState(() => ipAddress = val),
                             ),
                           ),
                           new ListTile(
@@ -95,11 +105,11 @@ class _HomeMaterialState extends State<HomeMaterial> {
                                   InputDecoration(labelText: 'Folder Path'),
                               validator: (value) {
                                 if (value.isEmpty) {
-                                  return 'Please enter the path where photos to be copied';
+                                  return 'Please enter the path of the destinatation';
                                 }
                               },
                               onSaved: (val) =>
-                                  setState(() => _user.folderPath = val),
+                                  setState(() => folderPath = val),
                             ),
                           ),
                           new ListTile(
@@ -113,7 +123,7 @@ class _HomeMaterialState extends State<HomeMaterial> {
                                   }
                                 },
                                 onSaved: (val) =>
-                                    setState(() => _user.userName = val)),
+                                    setState(() => userName = val)),
                           ),
                           new ListTile(
                             leading: const Icon(Icons.remove_red_eye),
@@ -127,7 +137,7 @@ class _HomeMaterialState extends State<HomeMaterial> {
                                   }
                                 },
                                 onSaved: (val) =>
-                                    setState(() => _user.passWord = val)),
+                                    setState(() => passWord = val)),
                           ),
                           new ListTile(
                             leading: const Icon(Icons.vpn_key),
@@ -143,20 +153,11 @@ class _HomeMaterialState extends State<HomeMaterial> {
                                   }
                                 },
                                 onSaved: (val) =>
-                                    setState(() => _user.licenseKey = val)
+                                    setState(() => licenseKey = val)
                             ),
 
                           ),
                         ])))));
   }
-
-}
-
-class User {
-  String ipAddress = '';
-  String folderPath = '';
-  String userName = '';
-  String passWord = '';
-  String licenseKey = '';
 
 }

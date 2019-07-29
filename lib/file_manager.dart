@@ -29,6 +29,10 @@ class _FileManagerState extends State<FileManager> {
   bool conn = false;
   bool _saving = false;
   Choice _selectedChoice = choices[0];
+  /*final HomeMaterial homeMaterial; 
+
+    // In the constructor, require a Person
+  _FileManagerState({Key key, @required this.homeMaterial}) : super();*/
 
   @override
   void initState() {
@@ -158,7 +162,7 @@ class _FileManagerState extends State<FileManager> {
             backgroundColor: Colors.blueAccent,
             semanticsLabel: "Loading",
           ),
-          child: _buildWidget2(),
+          child: _buildWidget1(),
         ),
       );
     } else{
@@ -509,3 +513,4 @@ class ChoiceCard extends StatelessWidget {
     );
   }
 }
+
