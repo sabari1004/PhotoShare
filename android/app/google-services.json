@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "52048332269",
+    "firebase_url": "https://photo-share-app-8f2de.firebaseio.com",
+    "project_id": "photo-share-app-8f2de",
+    "storage_bucket": "photo-share-app-8f2de.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:52048332269:android:13ebd57ad2ad549e",
+        "android_client_info": {
+          "package_name": "com.sabel.flutterfilemanager"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "52048332269-6qrvk1gie8apd16cl7390ubo8dp6chmb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATGhLgQoS16YlRp-GzRJ-YJ8mIDtqfEO8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "52048332269-6qrvk1gie8apd16cl7390ubo8dp6chmb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
