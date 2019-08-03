@@ -128,20 +128,20 @@ class _FileManager1State extends State<FileManager1> {
 
   @override
   Widget build(BuildContext context) {
-      return new Scaffold(
-        // display modal progress HUD (heads-up display, or indicator)
-        // when in async call
-        body: ModalProgressHUD(
-          inAsyncCall: _saving,
-          // demo of some additional parameters
-          opacity: 0.5,
-          progressIndicator: CircularProgressIndicator(
-            backgroundColor: Colors.blueAccent,
-            semanticsLabel: "Loading",
-          ),
-            child: _buildWidget(),
+    return new Scaffold(
+      // display modal progress HUD (heads-up display, or indicator)
+      // when in async call
+      body: ModalProgressHUD(
+        inAsyncCall: _saving,
+        // demo of some additional parameters
+        opacity: 0.5,
+        progressIndicator: CircularProgressIndicator(
+          backgroundColor: Colors.blueAccent,
+          semanticsLabel: "Loading",
         ),
-      );
+        child: _buildWidget(),
+      ),
+    );
 
   }
 
@@ -169,18 +169,18 @@ class _FileManager1State extends State<FileManager1> {
           leading: parentDir?.path == sDCardDir
               ? Container()
               : IconButton(
-                  icon: Icon(
-                    Icons.chevron_left,
-                    color: Colors.black,
-                  ),
-                  onPressed: () {
-                    if (parentDir.path != sDCardDir) {
-                      initDirectory(parentDir.parent.path);
-                      jumpToPosition(false);
-                    } else {
-                      Navigator.pop(context);
-                    }
-                  }),
+              icon: Icon(
+                Icons.chevron_left,
+                color: Colors.black,
+              ),
+              onPressed: () {
+                if (parentDir.path != sDCardDir) {
+                  initDirectory(parentDir.parent.path);
+                  jumpToPosition(false);
+                } else {
+                  Navigator.pop(context);
+                }
+              }),
           actions: <Widget>[
             // action button
             IconButton(
@@ -233,9 +233,9 @@ class _FileManager1State extends State<FileManager1> {
 
     for (int i = 0; i < dir.length; i++) {
       if (dir[i]
-              .path
-              .substring(dir[i].parent.path.length + 1)
-              .substring(0, 1) ==
+          .path
+          .substring(dir[i].parent.path.length + 1)
+          .substring(0, 1) ==
           '.') num--;
     }
     return num;
@@ -274,20 +274,20 @@ class _FileManager1State extends State<FileManager1> {
               children: <Widget>[
                 Expanded(
                     child:
-                        Text(file.path.substring(file.parent.path.length + 1))),
+                    Text(file.path.substring(file.parent.path.length + 1))),
                 isFile
                     ? Container()
                     : Text(
-                        '$length',
-                        style: TextStyle(color: Colors.grey),
-                      )
+                  '$length',
+                  style: TextStyle(color: Colors.grey),
+                )
               ],
             ),
             subtitle: isFile
                 ? Text(
-                    '${getFileLastModifiedTime(file)}  ${getFileSize(file)}',
-                    style: TextStyle(fontSize: 12.0),
-                  )
+              '${getFileLastModifiedTime(file)}  ${getFileSize(file)}',
+              style: TextStyle(fontSize: 12.0),
+            )
                 : null,
             trailing: isFile ? null : Icon(Icons.chevron_right),
           ),
@@ -350,7 +350,7 @@ class _FileManager1State extends State<FileManager1> {
 
   getFileLastModifiedTime(FileSystemEntity file) {
     DateTime dateTime =
-        File(file.resolveSymbolicLinksSync()).lastModifiedSync();
+    File(file.resolveSymbolicLinksSync()).lastModifiedSync();
 
     String time =
         '${dateTime.year}-${dateTime.month < 10 ? 0 : ''}${dateTime.month}-${dateTime.day < 10 ? 0 : ''}${dateTime.day} ${dateTime.hour < 10 ? 0 : ''}${dateTime.hour}:${dateTime.minute < 10 ? 0 : ''}${dateTime.minute}';

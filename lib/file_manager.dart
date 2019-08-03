@@ -29,6 +29,11 @@ class _FileManagerState extends State<FileManager> {
   bool conn = false;
   bool _saving = false;
   Choice _selectedChoice = choices[0];
+  bool _progressBarActive = true;
+  /*final HomeMaterial homeMaterial;
+
+    // In the constructor, require a Person
+  _FileManagerState({Key key, @required this.homeMaterial}) : super();*/
 
   @override
   void initState() {
@@ -88,6 +93,11 @@ class _FileManagerState extends State<FileManager> {
 
   _uploadPhoto() {
     uploadFile(sDCardDir);
+    _onLoading();
+    Navigator.of(context)
+        .push(new MaterialPageRoute(builder: (BuildContext context) {
+      return new FileManager();
+    }));
     Fluttertoast.showToast(
         msg: "Uploaded Photos Successfully",
         toastLength: Toast.LENGTH_SHORT,
@@ -95,10 +105,6 @@ class _FileManagerState extends State<FileManager> {
         timeInSecForIos: 1,
         backgroundColor: Colors.black,
         textColor: Colors.white);
-    Navigator.of(context)
-        .push(new MaterialPageRoute(builder: (BuildContext context) {
-      return new FileManager();
-    }));
   }
 
   Future<void> getPermission() async {
@@ -158,11 +164,11 @@ class _FileManagerState extends State<FileManager> {
             backgroundColor: Colors.blueAccent,
             semanticsLabel: "Loading",
           ),
-          child: _buildWidget2(),
+          child: _buildWidget1(),
         ),
       );
     } else{
-       return new Scaffold(
+      return new Scaffold(
         // display modal progress HUD (heads-up display, or indicator)
         // when in async call
         body: ModalProgressHUD(
@@ -193,7 +199,7 @@ class _FileManagerState extends State<FileManager> {
         appBar: AppBar(
           title: Text(
             parentDir?.path == sDCardDir
-                ? 'Notification Photos'
+                ? 'Upload Photos'
                 : parentDir.path.substring(parentDir.parent.path.length + 1),
             style: TextStyle(color: Colors.white),
           ),
@@ -203,18 +209,18 @@ class _FileManagerState extends State<FileManager> {
           leading: parentDir?.path == sDCardDir
               ? Container()
               : IconButton(
-                  icon: Icon(
-                    Icons.chevron_left,
-                    color: Colors.black,
-                  ),
-                  onPressed: () {
-                    if (parentDir.path != sDCardDir) {
-                      initDirectory(parentDir.parent.path);
-                      jumpToPosition(false);
-                    } else {
-                      Navigator.pop(context);
-                    }
-                  }),
+              icon: Icon(
+                Icons.chevron_left,
+                color: Colors.black,
+              ),
+              onPressed: () {
+                if (parentDir.path != sDCardDir) {
+                  initDirectory(parentDir.parent.path);
+                  jumpToPosition(false);
+                } else {
+                  Navigator.pop(context);
+                }
+              }),
           actions: <Widget>[
             // action button
             IconButton(
@@ -265,49 +271,49 @@ class _FileManagerState extends State<FileManager> {
     DateTime expired = new DateTime(2019, 9, 1);
     int diffDays = expired.difference(DateTime.now()).inDays;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('License Expiry Notification'),
-      ),
-      body: Center(
-        child: Container(
-          child: Text(
-            '     License Expiring in '+ diffDays.toString() + ' days.',
-            style: Theme.of(context).textTheme.title,
+        appBar: AppBar(
+          title: const Text('License Expiry Notification'),
+        ),
+        body: Center(
+          child: Container(
+            child: Text(
+              '     License Expiring in '+ diffDays.toString() + ' days.',
+              style: Theme.of(context).textTheme.title,
+            ),
           ),
         ),
-      ),
-      floatingActionButton: Theme(
-        data: Theme.of(context).copyWith(
-          colorScheme:
-              Theme.of(context).colorScheme.copyWith(secondary: Colors.blueAccent),
-        ),
-        child: FloatingActionButton.extended(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => FileManager1()),
-            );
-          },
-          label: Text("Close"),
-          tooltip: "First",
-        ), 
-      )     
+        floatingActionButton: Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme:
+            Theme.of(context).colorScheme.copyWith(secondary: Colors.blueAccent),
+          ),
+          child: FloatingActionButton.extended(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => FileManager1()),
+              );
+            },
+            label: Text("Close"),
+            tooltip: "First",
+          ),
+        )
     );
   }
 
-    Widget _buildWidget2() {
+  Widget _buildWidget2() {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('License Expiry Notification'),
-      ),
-      body: Center(
-        child: Container(
-          child: Text(
-            '         License Expired',
-            style: Theme.of(context).textTheme.title,
-          ),
+        appBar: AppBar(
+          title: const Text('License Expiry Notification'),
         ),
-      )    
+        body: Center(
+          child: Container(
+            child: Text(
+              '         License Expired',
+              style: Theme.of(context).textTheme.title,
+            ),
+          ),
+        )
     );
   }
 
@@ -317,9 +323,9 @@ class _FileManagerState extends State<FileManager> {
 
     for (int i = 0; i < dir.length; i++) {
       if (dir[i]
-              .path
-              .substring(dir[i].parent.path.length + 1)
-              .substring(0, 1) ==
+          .path
+          .substring(dir[i].parent.path.length + 1)
+          .substring(0, 1) ==
           '.') num--;
     }
     return num;
@@ -358,20 +364,20 @@ class _FileManagerState extends State<FileManager> {
               children: <Widget>[
                 Expanded(
                     child:
-                        Text(file.path.substring(file.parent.path.length + 1))),
+                    Text(file.path.substring(file.parent.path.length + 1))),
                 isFile
                     ? Container()
                     : Text(
-                        '$length',
-                        style: TextStyle(color: Colors.grey),
-                      )
+                  '$length',
+                  style: TextStyle(color: Colors.grey),
+                )
               ],
             ),
             subtitle: isFile
                 ? Text(
-                    '${getFileLastModifiedTime(file)}  ${getFileSize(file)}',
-                    style: TextStyle(fontSize: 12.0),
-                  )
+              '${getFileLastModifiedTime(file)}  ${getFileSize(file)}',
+              style: TextStyle(fontSize: 12.0),
+            )
                 : null,
             trailing: isFile ? null : Icon(Icons.chevron_right),
           ),
@@ -391,6 +397,22 @@ class _FileManagerState extends State<FileManager> {
         } else
           openFile(file.path);
       },
+    );
+  }
+
+  void _onLoading() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      child: new Dialog(
+        child: new Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            new CircularProgressIndicator(),
+            new Text("Loading"),
+          ],
+        ),
+      ),
     );
   }
 
@@ -434,7 +456,7 @@ class _FileManagerState extends State<FileManager> {
 
   getFileLastModifiedTime(FileSystemEntity file) {
     DateTime dateTime =
-        File(file.resolveSymbolicLinksSync()).lastModifiedSync();
+    File(file.resolveSymbolicLinksSync()).lastModifiedSync();
 
     String time =
         '${dateTime.year}-${dateTime.month < 10 ? 0 : ''}${dateTime.month}-${dateTime.day < 10 ? 0 : ''}${dateTime.day} ${dateTime.hour < 10 ? 0 : ''}${dateTime.hour}:${dateTime.minute < 10 ? 0 : ''}${dateTime.minute}';
@@ -509,3 +531,4 @@ class ChoiceCard extends StatelessWidget {
     );
   }
 }
+

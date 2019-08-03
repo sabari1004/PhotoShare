@@ -26,6 +26,8 @@ dependencies:
   modal_progress_hud: ^0.1.2
   http: ^0.12.0+2
   intl: ^0.15.8
+  cloud_firestore: ^0.8.2
+  sqflite: ^1.1.6+3
 
 dev_dependencies:
   flutter_test:
@@ -56,3 +58,6 @@ flutter:
    - assets/images/psd.png
    - assets/images/unknown.png
    - assets/images/image.jpg
+   - assets/images/logo.jpg
+   - assets/images/imglogo.png
+   - assets/db/upload.db

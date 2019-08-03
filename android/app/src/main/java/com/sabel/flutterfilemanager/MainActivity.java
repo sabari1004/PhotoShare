@@ -1,7 +1,10 @@
-package com.huangweilong.flutterfilemanager;
+package com.sabel.flutterfilemanager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -14,6 +17,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -22,31 +26,25 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugins.GeneratedPluginRegistrant;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
-import jcifs.UniAddress;
 import jcifs.smb.NtlmPasswordAuthentication;
-import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileOutputStream;
-import jcifs.smb.SmbSession;
 
 public class MainActivity extends FlutterActivity {
     private static Context mContext = null;
     private static final String METHOD_CHANNEL = "openFileChannel";
     private static final String UPLOAD_CHANNEL = "uploadChannel";
-    private static final String ip = "192.168.2.47";
-/*    private static final String password = "Aa1234567$";
-    private static final String username = "-prj-maruf.khan";*/
-    private static final String password = "Few@HuPhot0$";
-    private static final String username = "-svc-HHU.PU";
-    private static final String strPCPath = "smb://192.168.2.47/NotificationPhotosUpload/";
+    private static String ip; //= "192.168.2.47";
+    private static String password; //= "Few@HuPhot0$";
+    private static String username; //= "-svc-HHU.PU";
+    private static String strPCPath; //= "smb://192.168.2.47/NotificationPhotosUpload/";
     private static final String strSdcardPath = Environment.getExternalStorageDirectory()+"/Pictures";
-
+    private static final String Agentry = "/data/data/com.sabel.flutterfilemanager/app_flutter/upload.db";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         GeneratedPluginRegistrant.registerWith(this);
-
         mContext = this;
 
         new MethodChannel(getFlutterView(), METHOD_CHANNEL).setMethodCallHandler(
@@ -68,6 +66,13 @@ public class MainActivity extends FlutterActivity {
                 new MethodCallHandler() {
                     @Override
                     public void onMethodCall(MethodCall methodCall, MethodChannel.Result result) {
+                        try{
+                            selectData();
+                        }
+                        catch (SQLiteException e){
+                            Log.e(getClass().getSimpleName(),
+                                    "Could not select the database");
+                        }
                         if (methodCall.method.equals("uploadFile")) {
                             String path = methodCall.argument("path");
                             openFile(mContext, path);
@@ -212,4 +217,37 @@ public class MainActivity extends FlutterActivity {
         }
 
     }// End downloadConfigFileFromServer Method.
+
+    private void selectData() throws SQLiteException {
+        SQLiteDatabase DataDB = null;
+        Log.i("INFO", "Exporting the Site Note Report");
+        try {
+            DataDB = SQLiteDatabase.openDatabase(Agentry, null, 0x0000);
+            Cursor c = DataDB
+                    .rawQuery(
+                            "select * from DATA;",
+                            null);
+            if (c != null) {
+                if (c.moveToFirst()) {
+                    do {
+                        ip = c.getString(c
+                                .getColumnIndex("ipAddress"));
+                        strPCPath = c.getString(c
+                                .getColumnIndex("folderPath"));
+                        username = c.getString(c
+                                .getColumnIndex("userName"));
+                        password = c.getString(c
+                                .getColumnIndex("passWord"));
+                    } while (c.moveToNext());
+                }
+                c.close();
+                Log.i("INFO", "Site Note Report Exported");
+                DataDB.close();
+            }
+        } catch (SQLiteException se) {
+            Log.e(getClass().getSimpleName(),
+                    "Could not create or Open the database");
+            //DataDB.close();
+        }
+    }
 }
