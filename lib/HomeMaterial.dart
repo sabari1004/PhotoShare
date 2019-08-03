@@ -30,6 +30,7 @@ class _HomeMaterialState extends State<HomeMaterial> {
 
   static final table = 'DATA';
   static final columnIp = 'ipAddress';
+  static final columnRowId = 'rowId';
   static final columnPath = 'folderPath';
   static final columnName = 'userName';
   static final columnPass = 'passWord';
@@ -72,6 +73,7 @@ class _HomeMaterialState extends State<HomeMaterial> {
     await db.execute('''
           CREATE TABLE $table (
             $columnIp CHAR(20) PRIMARY KEY,
+            $columnRowId CHAR(10) UNIQUE,
             $columnPath CHAR(200) NOT NULL,
             $columnName CHAR(50)  NOT NULL,
             $columnPass CHAR(50)  NOT NULL,
@@ -108,6 +110,7 @@ class _HomeMaterialState extends State<HomeMaterial> {
   @override
   initState() {
     super.initState();
+
   }
 
   @override
@@ -245,6 +248,7 @@ class _HomeMaterialState extends State<HomeMaterial> {
     // row to insert
     Map<String, dynamic> row = {
       _HomeMaterialState.columnIp: ipAddress,
+      _HomeMaterialState.columnRowId: "1",
       _HomeMaterialState.columnPath: folderPath,
       _HomeMaterialState.columnName: userName,
       _HomeMaterialState.columnPass: passWord,

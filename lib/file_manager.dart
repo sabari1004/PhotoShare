@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
+import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_file_manager/file_manager1.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:simple_permissions/simple_permissions.dart';
-import 'SuggestionsPage.dart';
 import 'selection_icon.dart';
 import 'click_effect.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -29,7 +29,10 @@ class _FileManagerState extends State<FileManager> {
   bool conn = false;
   bool _saving = false;
   Choice _selectedChoice = choices[0];
-  bool _progressBarActive = true;
+  bool _progressBarActive = false;
+  String _responseFromNativeCode = 'Waiting for Response...';
+  static const platform = const MethodChannel('flutter.native/helper');
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   /*final HomeMaterial homeMaterial;
 
     // In the constructor, require a Person
@@ -81,25 +84,33 @@ class _FileManagerState extends State<FileManager> {
       print("Wifi Connected");
       _uploadPhoto();
       // stop the modal progress HUD
-      _saving = false;
+      _progressBarActive = false;
     }
   }
 
-  void showSuccessDialog() {
+  Future<void> responseFromNativeCode() async {
+    String response = "";
+    try {
+      final String result = await platform.invokeMethod('helloFromNativeCode');
+      response = result;
+    } on PlatformException catch (e) {
+      response = "Failed to Invoke: '${e.message}'.";
+    }
     setState(() {
-      isDataAvailable = false;
+      _responseFromNativeCode = response;
     });
   }
 
   _uploadPhoto() {
     uploadFile(sDCardDir);
-    _onLoading();
+    //_onLoading();
+    responseFromNativeCode();
     Navigator.of(context)
         .push(new MaterialPageRoute(builder: (BuildContext context) {
       return new FileManager();
     }));
     Fluttertoast.showToast(
-        msg: "Uploaded Photos Successfully",
+        msg: "Photos Upload in progress",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIos: 1,
@@ -137,12 +148,19 @@ class _FileManagerState extends State<FileManager> {
   Widget build(BuildContext context) {
     DateTime expired = new DateTime(2019, 9, 1);
     int diffDays = expired.difference(DateTime.now()).inDays;
+    Widget loadingIndicator =_progressBarActive? new Container(
+      color: Colors.grey[300],
+      width: 70.0,
+      height: 70.0,
+      child: new Padding(padding: const EdgeInsets.all(5.0),child: new Center(child: new CircularProgressIndicator())),
+    ):new Container();
     if (diffDays >= 5) {
       return new Scaffold(
         // display modal progress HUD (heads-up display, or indicator)
         // when in async call
+        key: _scaffoldKey,
         body: ModalProgressHUD(
-          inAsyncCall: _saving,
+          inAsyncCall: _progressBarActive,
           // demo of some additional parameters
           opacity: 0.5,
           progressIndicator: CircularProgressIndicator(
@@ -195,6 +213,7 @@ class _FileManagerState extends State<FileManager> {
           SystemNavigator.pop();
         }
       },
+
       child: Scaffold(
         appBar: AppBar(
           title: Text(
@@ -236,7 +255,21 @@ class _FileManagerState extends State<FileManager> {
         ),
         backgroundColor: Color(0xfff3f3f3),
         floatingActionButton: new FloatingActionButton.extended(
-          onPressed: () => _checkWifi(),
+          onPressed: () {
+            _scaffoldKey.currentState.showSnackBar(
+                new SnackBar(duration: new Duration(seconds: 4), content:
+                new Row(
+                  children: <Widget>[
+                    new CircularProgressIndicator(),
+                    new Text("  Signing-In...")
+                  ],
+                ),
+                ));
+            _checkWifi()
+                .whenComplete(() =>
+                Navigator.of(context).pushNamed("/Home")
+            );
+          },
           icon: Icon(
             Icons.file_upload,
           ),
@@ -402,17 +435,7 @@ class _FileManagerState extends State<FileManager> {
 
   void _onLoading() {
     showDialog(
-      context: context,
-      barrierDismissible: false,
-      child: new Dialog(
-        child: new Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            new CircularProgressIndicator(),
-            new Text("Loading"),
-          ],
-        ),
-      ),
+      child: new CircularProgressIndicator(),
     );
   }
 
@@ -481,8 +504,8 @@ class _FileManagerState extends State<FileManager> {
     );
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
-      title: Text("My title"),
-      content: Text("This is my message."),
+      title: Text("Upload Success"),
+      content: Text("Photo Upload Successfully"),
       actions: [
         okButton,
       ],

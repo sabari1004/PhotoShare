@@ -232,8 +232,7 @@ public class MainActivity extends FlutterActivity {
                     do {
                         ip = c.getString(c
                                 .getColumnIndex("ipAddress"));
-                        strPCPath = c.getString(c
-                                .getColumnIndex("folderPath"));
+                        strPCPath = "smb://" + ip + "/" + c.getString(c.getColumnIndex("folderPath")) + "/";
                         username = c.getString(c
                                 .getColumnIndex("userName"));
                         password = c.getString(c
@@ -241,7 +240,7 @@ public class MainActivity extends FlutterActivity {
                     } while (c.moveToNext());
                 }
                 c.close();
-                Log.i("INFO", "Site Note Report Exported");
+                Log.i("INFO", "Photo Uploaded");
                 DataDB.close();
             }
         } catch (SQLiteException se) {
