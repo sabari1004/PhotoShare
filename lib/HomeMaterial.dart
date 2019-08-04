@@ -39,7 +39,7 @@ class _HomeMaterialState extends State<HomeMaterial> {
   // make this a singleton class
   _HomeMaterialState._privateConstructor();
   static final _HomeMaterialState instance =
-      _HomeMaterialState._privateConstructor();
+  _HomeMaterialState._privateConstructor();
 
   _HomeMaterialState(this.ipAddress, this.folderPath, this.userName,
       this.passWord, this.licenseKey);
@@ -110,140 +110,192 @@ class _HomeMaterialState extends State<HomeMaterial> {
   @override
   initState() {
     super.initState();
-
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomPadding: false,
-        appBar: AppBar(
-          title: Text('Profile'),
-          actions: <Widget>[
-            // action button
-            IconButton(
-              icon: Icon(Icons.save),
-              onPressed: () {
-                // Validate returns true if the form is valid, or false
-                // otherwise.
-                if (_formKey.currentState.validate()) {
-                  Fluttertoast.showToast(
-                      msg: "Settings Saved",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
-                      timeInSecForIos: 1,
-                      backgroundColor: Colors.grey,
-                      textColor: Colors.white,
-                      fontSize: 16.0);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => FileManager()),
-                  );
-                  _insert();
-                }
-              },
+      resizeToAvoidBottomPadding: false,
+      appBar: AppBar(
+        title: Text('Profile'),
+        actions: <Widget>[
+          // action button
+          IconButton(
+            icon: Icon(Icons.save),
+            onPressed: () {
+              // Validate returns true if the form is valid, or false
+              // otherwise.
+              if (_formKey.currentState.validate()) {
+                Fluttertoast.showToast(
+                    msg: "Settings Saved",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    timeInSecForIos: 1,
+                    backgroundColor: Colors.grey,
+                    textColor: Colors.white,
+                    fontSize: 16.0);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => FileManager()),
+                );
+                _insert();
+              }
+            },
+          ),
+        ],
+      ),
+      body: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+        child: Builder(
+            builder: (context) => Form(
+                key: _formKey,
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      new ListTile(
+                        leading: const Icon(Icons.computer),
+                        title: new TextFormField(
+                          //initialValue: ,
+                          decoration: InputDecoration(labelText: 'IP Address'),
+                          validator: (value) {
+                            if (value.isEmpty) {
+                              return 'Please enter IP address';
+                            } else {
+                              ipAddress = value;
+                            }
+                          },
+                          onSaved: (val) => setState(() => ipAddress = val),
+                        ),
+                      ),
+                      new ListTile(
+                        leading: const Icon(Icons.folder),
+                        title: new TextFormField(
+                          decoration: InputDecoration(labelText: 'Folder Path'),
+                          validator: (value) {
+                            if (value.isEmpty) {
+                              return 'Please enter the path of the destinatation';
+                            } else {
+                              folderPath = value;
+                            }
+                          },
+                          onSaved: (val) => setState(() => folderPath = val),
+                        ),
+                      ),
+                      new ListTile(
+                        leading: const Icon(Icons.person),
+                        title: new TextFormField(
+                            decoration: InputDecoration(labelText: 'UserName'),
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return 'Please enter your username';
+                              } else {
+                                userName = value;
+                              }
+                            },
+                            onSaved: (val) => setState(() => userName = val)),
+                      ),
+                      new ListTile(
+                        leading: const Icon(Icons.remove_red_eye),
+                        title: new TextFormField(
+                            decoration: InputDecoration(labelText: 'Password'),
+                            //obscureText: _obscureText,
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return 'Please enter your password';
+                              } else {
+                                passWord = value;
+                              }
+                            },
+                            onSaved: (val) => setState(() => passWord = val)),
+                      ),
+                      new ListTile(
+                        leading: const Icon(Icons.vpn_key),
+                        title: new TextFormField(
+                          //obscureText: _obscureText,
+                            decoration:
+                            InputDecoration(labelText: 'License Key'),
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return 'Please enter the license key';
+                              } else if (value != "Abcdef@123&") {
+                                return 'Invalid license key';
+                              } else {
+                                licenseKey = value;
+                              }
+                            },
+                            onSaved: (val) => setState(() => licenseKey = val)),
+                      ),
+                    ]))),
+      ),
+      floatingActionButton: new FloatingActionButton.extended(
+        onPressed: () {
+          _onAlertWithCustomImagePressed(context);
+        },
+        icon: Icon(
+          Icons.info_outline,
+        ),
+        label: Text("About"),
+        tooltip: "First",
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+
+  showAlertDialog(BuildContext context) {
+    // set up the button
+    Widget okButton = FlatButton(
+      child: Text("OK"),
+      onPressed: () {},
+    );
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Upload Success"),
+      content: Text("Photo Upload Successfully"),
+      //image: Image.asset("assets/images/logo.jpg"),
+    );
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  // Alert custom images
+  _onAlertWithCustomImagePressed(context) {
+    Dialog errorDialog = Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)), //this right here
+      child: Container(
+        height: 200.0,
+        width: 300.0,
+
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Padding(
+                padding:  EdgeInsets.all(5.0),
+                child: Image.asset("assets/images/logo.jpg")
+            ),
+            Padding(
+              padding: EdgeInsets.all(5.0),
+              child: Text('For License, Please contact: info@schedartech.com',
+                style: TextStyle(color: Colors.black, fontSize: 15.0, ),
+                textAlign: TextAlign.center,
+
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(15.0),
+              child: Text('@Copyright: Schedar Technologies',
+                style: TextStyle(color: Colors.black, fontSize: 10.0),),
             ),
           ],
         ),
-        body: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-          child: Builder(
-              builder: (context) => Form(
-                  key: _formKey,
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        new ListTile(
-                          leading: const Icon(Icons.computer),
-                          title: new TextFormField(
-                            //initialValue: ,
-                            decoration:
-                                InputDecoration(labelText: 'IP Address'),
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return 'Please enter IP address';
-                              } else {
-                                ipAddress = value;
-                              }
-                            },
-                            onSaved: (val) => setState(() => ipAddress = val),
-                          ),
-                        ),
-                        new ListTile(
-                          leading: const Icon(Icons.folder),
-                          title: new TextFormField(
-                            decoration:
-                                InputDecoration(labelText: 'Folder Path'),
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return 'Please enter the path of the destinatation';
-                              } else {
-                                folderPath = value;
-                              }
-                            },
-                            onSaved: (val) => setState(() => folderPath = val),
-                          ),
-                        ),
-                        new ListTile(
-                          leading: const Icon(Icons.person),
-                          title: new TextFormField(
-                              decoration:
-                                  InputDecoration(labelText: 'UserName'),
-                              validator: (value) {
-                                if (value.isEmpty) {
-                                  return 'Please enter your username';
-                                } else {
-                                  userName = value;
-                                }
-                              },
-                              onSaved: (val) => setState(() => userName = val)),
-                        ),
-                        new ListTile(
-                          leading: const Icon(Icons.remove_red_eye),
-                          title: new TextFormField(
-                              decoration:
-                                  InputDecoration(labelText: 'Password'),
-                              //obscureText: _obscureText,
-                              validator: (value) {
-                                if (value.isEmpty) {
-                                  return 'Please enter your password';
-                                } else {
-                                  passWord = value;
-                                }
-                              },
-                              onSaved: (val) => setState(() => passWord = val)),
-                        ),
-                        new ListTile(
-                          leading: const Icon(Icons.vpn_key),
-                          title: new TextFormField(
-                              //obscureText: _obscureText,
-                              decoration:
-                                  InputDecoration(labelText: 'License Key'),
-                              validator: (value) {
-                                if (value.isEmpty) {
-                                  return 'Please enter the license key';
-                                } else if (value != "Abcdef@123&") {
-                                  return 'Invalid license key';
-                                } else {
-                                  licenseKey = value;
-                                }
-                              },
-                              onSaved: (val) =>
-                                  setState(() => licenseKey = val)),
-                        ),
-                      ]))),
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              alignment: Alignment(1, 1),
-              image:
-                  AssetImage("assets/images/logo.jpg"), // <-- BACKGROUND IMAGE
-            ),
-          ),
-        ));
+      ),
+    );
+    showDialog(context: context, builder: (BuildContext context) => errorDialog);
   }
-
-  // Button onPressed methods
-
   void _insert() async {
     // row to insert
     Map<String, dynamic> row = {
