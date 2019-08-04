@@ -180,7 +180,24 @@ class _FileManagerState extends State<FileManager2> {
           showDialog(
               context: context,
               builder: (BuildContext context) {
-                return Center(child: CircularProgressIndicator(),);
+                return SimpleDialog(
+                  elevation: 0.0,
+                  backgroundColor: Colors.transparent,
+                  children: <Widget>[
+                    Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                    Text(
+                        "\nUploading Photos",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15.0,
+                        )
+                    )
+                  ],
+                );
+                //Center(child: CircularProgressIndicator(),);
               });
           await loginAction();
           Navigator.pop(context);
@@ -218,7 +235,7 @@ class _FileManagerState extends State<FileManager2> {
   Future<bool> loginAction() async {
     //replace the below line of code with your login request
     await new Future.delayed(
-        const Duration(seconds: 15),
+      const Duration(seconds: 15),
     );
     _checkWifi();
     return true;
@@ -429,4 +446,3 @@ class ChoiceCard extends StatelessWidget {
   }
 
 }
-
