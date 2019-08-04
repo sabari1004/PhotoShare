@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
+import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_file_manager/file_manager1.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:simple_permissions/simple_permissions.dart';
-import 'SuggestionsPage.dart';
 import 'selection_icon.dart';
 import 'click_effect.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -29,6 +29,14 @@ class _FileManagerState extends State<FileManager> {
   bool conn = false;
   bool _saving = false;
   Choice _selectedChoice = choices[0];
+  bool _progressBarActive = false;
+  String _responseFromNativeCode = 'Waiting for Response...';
+  static const platform = const MethodChannel('flutter.native/helper');
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  /*final HomeMaterial homeMaterial;
+
+    // In the constructor, require a Person
+  _FileManagerState({Key key, @required this.homeMaterial}) : super();*/
 
   @override
   void initState() {
@@ -76,29 +84,38 @@ class _FileManagerState extends State<FileManager> {
       print("Wifi Connected");
       _uploadPhoto();
       // stop the modal progress HUD
-      _saving = false;
+      _progressBarActive = false;
     }
   }
 
-  void showSuccessDialog() {
+  Future<void> responseFromNativeCode() async {
+    String response = "";
+    try {
+      final String result = await platform.invokeMethod('helloFromNativeCode');
+      response = result;
+    } on PlatformException catch (e) {
+      response = "Failed to Invoke: '${e.message}'.";
+    }
     setState(() {
-      isDataAvailable = false;
+      _responseFromNativeCode = response;
     });
   }
 
   _uploadPhoto() {
     uploadFile(sDCardDir);
+    //_onLoading();
+    responseFromNativeCode();
+    Navigator.of(context)
+        .push(new MaterialPageRoute(builder: (BuildContext context) {
+      return new FileManager();
+    }));
     Fluttertoast.showToast(
-        msg: "Uploaded Photos Successfully",
+        msg: "Photos Upload in progress",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIos: 1,
         backgroundColor: Colors.black,
         textColor: Colors.white);
-    Navigator.of(context)
-        .push(new MaterialPageRoute(builder: (BuildContext context) {
-      return new FileManager();
-    }));
   }
 
   Future<void> getPermission() async {
@@ -131,12 +148,19 @@ class _FileManagerState extends State<FileManager> {
   Widget build(BuildContext context) {
     DateTime expired = new DateTime(2019, 9, 1);
     int diffDays = expired.difference(DateTime.now()).inDays;
+    Widget loadingIndicator =_progressBarActive? new Container(
+      color: Colors.grey[300],
+      width: 70.0,
+      height: 70.0,
+      child: new Padding(padding: const EdgeInsets.all(5.0),child: new Center(child: new CircularProgressIndicator())),
+    ):new Container();
     if (diffDays >= 5) {
       return new Scaffold(
         // display modal progress HUD (heads-up display, or indicator)
         // when in async call
+        key: _scaffoldKey,
         body: ModalProgressHUD(
-          inAsyncCall: _saving,
+          inAsyncCall: _progressBarActive,
           // demo of some additional parameters
           opacity: 0.5,
           progressIndicator: CircularProgressIndicator(
@@ -158,11 +182,11 @@ class _FileManagerState extends State<FileManager> {
             backgroundColor: Colors.blueAccent,
             semanticsLabel: "Loading",
           ),
-          child: _buildWidget2(),
+          child: _buildWidget1(),
         ),
       );
     } else{
-       return new Scaffold(
+      return new Scaffold(
         // display modal progress HUD (heads-up display, or indicator)
         // when in async call
         body: ModalProgressHUD(
@@ -189,11 +213,12 @@ class _FileManagerState extends State<FileManager> {
           SystemNavigator.pop();
         }
       },
+
       child: Scaffold(
         appBar: AppBar(
           title: Text(
             parentDir?.path == sDCardDir
-                ? 'Notification Photos'
+                ? 'Upload Photos'
                 : parentDir.path.substring(parentDir.parent.path.length + 1),
             style: TextStyle(color: Colors.white),
           ),
@@ -203,18 +228,18 @@ class _FileManagerState extends State<FileManager> {
           leading: parentDir?.path == sDCardDir
               ? Container()
               : IconButton(
-                  icon: Icon(
-                    Icons.chevron_left,
-                    color: Colors.black,
-                  ),
-                  onPressed: () {
-                    if (parentDir.path != sDCardDir) {
-                      initDirectory(parentDir.parent.path);
-                      jumpToPosition(false);
-                    } else {
-                      Navigator.pop(context);
-                    }
-                  }),
+              icon: Icon(
+                Icons.chevron_left,
+                color: Colors.black,
+              ),
+              onPressed: () {
+                if (parentDir.path != sDCardDir) {
+                  initDirectory(parentDir.parent.path);
+                  jumpToPosition(false);
+                } else {
+                  Navigator.pop(context);
+                }
+              }),
           actions: <Widget>[
             // action button
             IconButton(
@@ -230,7 +255,21 @@ class _FileManagerState extends State<FileManager> {
         ),
         backgroundColor: Color(0xfff3f3f3),
         floatingActionButton: new FloatingActionButton.extended(
-          onPressed: () => _checkWifi(),
+          onPressed: () {
+            _scaffoldKey.currentState.showSnackBar(
+                new SnackBar(duration: new Duration(seconds: 4), content:
+                new Row(
+                  children: <Widget>[
+                    new CircularProgressIndicator(),
+                    new Text("  Signing-In...")
+                  ],
+                ),
+                ));
+            _checkWifi()
+                .whenComplete(() =>
+                Navigator.of(context).pushNamed("/Home")
+            );
+          },
           icon: Icon(
             Icons.file_upload,
           ),
@@ -265,49 +304,49 @@ class _FileManagerState extends State<FileManager> {
     DateTime expired = new DateTime(2019, 9, 1);
     int diffDays = expired.difference(DateTime.now()).inDays;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('License Expiry Notification'),
-      ),
-      body: Center(
-        child: Container(
-          child: Text(
-            '     License Expiring in '+ diffDays.toString() + ' days.',
-            style: Theme.of(context).textTheme.title,
+        appBar: AppBar(
+          title: const Text('License Expiry Notification'),
+        ),
+        body: Center(
+          child: Container(
+            child: Text(
+              '     License Expiring in '+ diffDays.toString() + ' days.',
+              style: Theme.of(context).textTheme.title,
+            ),
           ),
         ),
-      ),
-      floatingActionButton: Theme(
-        data: Theme.of(context).copyWith(
-          colorScheme:
-              Theme.of(context).colorScheme.copyWith(secondary: Colors.blueAccent),
-        ),
-        child: FloatingActionButton.extended(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => FileManager1()),
-            );
-          },
-          label: Text("Close"),
-          tooltip: "First",
-        ), 
-      )     
+        floatingActionButton: Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme:
+            Theme.of(context).colorScheme.copyWith(secondary: Colors.blueAccent),
+          ),
+          child: FloatingActionButton.extended(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => FileManager1()),
+              );
+            },
+            label: Text("Close"),
+            tooltip: "First",
+          ),
+        )
     );
   }
 
-    Widget _buildWidget2() {
+  Widget _buildWidget2() {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('License Expiry Notification'),
-      ),
-      body: Center(
-        child: Container(
-          child: Text(
-            '         License Expired',
-            style: Theme.of(context).textTheme.title,
-          ),
+        appBar: AppBar(
+          title: const Text('License Expiry Notification'),
         ),
-      )    
+        body: Center(
+          child: Container(
+            child: Text(
+              '         License Expired',
+              style: Theme.of(context).textTheme.title,
+            ),
+          ),
+        )
     );
   }
 
@@ -317,9 +356,9 @@ class _FileManagerState extends State<FileManager> {
 
     for (int i = 0; i < dir.length; i++) {
       if (dir[i]
-              .path
-              .substring(dir[i].parent.path.length + 1)
-              .substring(0, 1) ==
+          .path
+          .substring(dir[i].parent.path.length + 1)
+          .substring(0, 1) ==
           '.') num--;
     }
     return num;
@@ -358,20 +397,20 @@ class _FileManagerState extends State<FileManager> {
               children: <Widget>[
                 Expanded(
                     child:
-                        Text(file.path.substring(file.parent.path.length + 1))),
+                    Text(file.path.substring(file.parent.path.length + 1))),
                 isFile
                     ? Container()
                     : Text(
-                        '$length',
-                        style: TextStyle(color: Colors.grey),
-                      )
+                  '$length',
+                  style: TextStyle(color: Colors.grey),
+                )
               ],
             ),
             subtitle: isFile
                 ? Text(
-                    '${getFileLastModifiedTime(file)}  ${getFileSize(file)}',
-                    style: TextStyle(fontSize: 12.0),
-                  )
+              '${getFileLastModifiedTime(file)}  ${getFileSize(file)}',
+              style: TextStyle(fontSize: 12.0),
+            )
                 : null,
             trailing: isFile ? null : Icon(Icons.chevron_right),
           ),
@@ -391,6 +430,12 @@ class _FileManagerState extends State<FileManager> {
         } else
           openFile(file.path);
       },
+    );
+  }
+
+  void _onLoading() {
+    showDialog(
+      child: new CircularProgressIndicator(),
     );
   }
 
@@ -434,7 +479,7 @@ class _FileManagerState extends State<FileManager> {
 
   getFileLastModifiedTime(FileSystemEntity file) {
     DateTime dateTime =
-        File(file.resolveSymbolicLinksSync()).lastModifiedSync();
+    File(file.resolveSymbolicLinksSync()).lastModifiedSync();
 
     String time =
         '${dateTime.year}-${dateTime.month < 10 ? 0 : ''}${dateTime.month}-${dateTime.day < 10 ? 0 : ''}${dateTime.day} ${dateTime.hour < 10 ? 0 : ''}${dateTime.hour}:${dateTime.minute < 10 ? 0 : ''}${dateTime.minute}';
@@ -459,8 +504,8 @@ class _FileManagerState extends State<FileManager> {
     );
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
-      title: Text("My title"),
-      content: Text("This is my message."),
+      title: Text("Upload Success"),
+      content: Text("Photo Upload Successfully"),
       actions: [
         okButton,
       ],
@@ -509,3 +554,4 @@ class ChoiceCard extends StatelessWidget {
     );
   }
 }
+
