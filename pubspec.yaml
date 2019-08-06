@@ -28,7 +28,7 @@ dependencies:
   intl: ^0.15.8
   cloud_firestore: ^0.8.2
   sqflite: ^1.1.6+3
-  progress_hud: ^1.1.0
+  rflutter_alert: ^1.0.3
 
 dev_dependencies:
   flutter_test:
@@ -60,5 +60,4 @@ flutter:
    - assets/images/unknown.png
    - assets/images/image.jpg
    - assets/images/logo.jpg
-   - assets/images/imglogo.png
    - assets/db/upload.db

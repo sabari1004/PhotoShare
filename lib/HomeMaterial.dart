@@ -5,6 +5,7 @@ import 'file_manager.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 class HomeMaterial extends StatefulWidget {
   String ipAddress = '';
@@ -39,7 +40,7 @@ class _HomeMaterialState extends State<HomeMaterial> {
   // make this a singleton class
   _HomeMaterialState._privateConstructor();
   static final _HomeMaterialState instance =
-  _HomeMaterialState._privateConstructor();
+      _HomeMaterialState._privateConstructor();
 
   _HomeMaterialState(this.ipAddress, this.folderPath, this.userName,
       this.passWord, this.licenseKey);
@@ -211,9 +212,9 @@ class _HomeMaterialState extends State<HomeMaterial> {
                       new ListTile(
                         leading: const Icon(Icons.vpn_key),
                         title: new TextFormField(
-                          //obscureText: _obscureText,
+                            //obscureText: _obscureText,
                             decoration:
-                            InputDecoration(labelText: 'License Key'),
+                                InputDecoration(labelText: 'License Key'),
                             validator: (value) {
                               if (value.isEmpty) {
                                 return 'Please enter the license key';
@@ -274,8 +275,8 @@ class _HomeMaterialState extends State<HomeMaterial> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Padding(
-                padding:  EdgeInsets.all(5.0),
-                child: Image.asset("assets/images/logo.jpg")
+              padding:  EdgeInsets.all(5.0),
+              child: Image.asset("assets/images/logo.jpg")
             ),
             Padding(
               padding: EdgeInsets.all(5.0),
