@@ -2,20 +2,12 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:flutter/services.dart';
-<<<<<<< HEAD
-=======
-import 'package:flutter_file_manager/file_manager1.dart';
->>>>>>> origin/master
 import 'package:path_provider/path_provider.dart';
 import 'package:simple_permissions/simple_permissions.dart';
 import 'selection_icon.dart';
 import 'click_effect.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:connectivity/connectivity.dart';
-<<<<<<< HEAD
-=======
-import 'package:modal_progress_hud/modal_progress_hud.dart';
->>>>>>> origin/master
 import 'HomeMaterial.dart';
 
 class FileManager2 extends StatefulWidget {
@@ -33,19 +25,8 @@ class _FileManagerState extends State<FileManager2> {
   String sDCardDir;
   List<double> position = [];
   bool conn = false;
-<<<<<<< HEAD
   bool _progressBarActive = false;
   static const platform = const MethodChannel('flutter.native/helper');
-=======
-  bool _saving = false;
-  bool _progressBarActive = false;
-  static const platform = const MethodChannel('flutter.native/helper');
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  /*final HomeMaterial homeMaterial;
-
-    // In the constructor, require a Person
-  _FileManagerState({Key key, @required this.homeMaterial}) : super();*/
->>>>>>> origin/master
 
   @override
   void initState() {
@@ -57,12 +38,6 @@ class _FileManagerState extends State<FileManager2> {
   void _submit() {
     // dismiss keyboard during async call
     FocusScope.of(context).requestFocus(new FocusNode());
-<<<<<<< HEAD
-=======
-    setState(() {
-      _saving = true;
-    });
->>>>>>> origin/master
   }
 
   getConnectionStatus() {
@@ -141,7 +116,6 @@ class _FileManagerState extends State<FileManager2> {
     initDirectory(sDCardDir);
   }
 
-<<<<<<< HEAD
   Future<bool> _onWillPop() {
     return showDialog(
           context: context,
@@ -261,104 +235,12 @@ class _FileManagerState extends State<FileManager2> {
             ),
           ),
         ));
-=======
-  @override
-  Widget build(BuildContext context) {
-    Widget loadingIndicator =_progressBarActive ? new Container(
-      color: Colors.grey[300],
-      width: 70.0,
-      height: 70.0,
-      child: new Padding(padding: const EdgeInsets.all(5.0),child: new Center(child: new CircularProgressIndicator())),
-    ):new Container();
-    return new Scaffold(
-      appBar: AppBar(
-        title: Text(
-          parentDir?.path == sDCardDir
-              ? 'Upload Photos'
-              : parentDir.path.substring(parentDir.parent.path.length + 1),
-          style: TextStyle(color: Colors.white),
-        ),
-        elevation: 0.4,
-        centerTitle: true,
-        backgroundColor: Colors.blueAccent,
-        leading: parentDir?.path == sDCardDir
-            ? Container()
-            : IconButton(
-            icon: Icon(
-              Icons.chevron_left,
-              color: Colors.black,
-            ),
-            onPressed: () {
-              if (parentDir.path != sDCardDir) {
-                initDirectory(parentDir.parent.path);
-                jumpToPosition(false);
-              } else {
-                Navigator.pop(context);
-              }
-            }),
-        actions: <Widget>[
-          // action button
-          IconButton(
-            icon: Icon(choices[0].icon),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => HomeMaterial()),
-              );
-            },
-          ),
-        ],
-      ),
-      backgroundColor: Color(0xfff3f3f3),
-      floatingActionButton: new FloatingActionButton.extended(
-        onPressed: () async {
-          showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return Center(child: CircularProgressIndicator(),);
-              });
-          await loginAction();
-          Navigator.pop(context);
-          //_checkWifi();
-        },
-        icon: Icon(
-          Icons.file_upload,
-        ),
-        label: Text("Upload"),
-        tooltip: "First",
-      ),
-      body: Scrollbar(
-        child: ListView.builder(
-          controller: controller,
-          itemCount: files.length != 0 ? files.length : 1,
-          itemBuilder: (BuildContext context, int index) {
-            if (files.length != 0)
-              return buildListViewItem(files[index]);
-            else
-              return Padding(
-                padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height / 2 -
-                        MediaQuery.of(context).padding.top -
-                        56.0),
-                child: Center(
-                  child: Text('The folder is empty'),
-                ),
-              );
-          },
-        ),
-      ),
-    );
->>>>>>> origin/master
   }
 
   Future<bool> loginAction() async {
     //replace the below line of code with your login request
     await new Future.delayed(
-<<<<<<< HEAD
       const Duration(seconds: 3),
-=======
-        const Duration(seconds: 15),
->>>>>>> origin/master
     );
     _checkWifi();
     return true;
@@ -370,15 +252,9 @@ class _FileManagerState extends State<FileManager2> {
 
     for (int i = 0; i < dir.length; i++) {
       if (dir[i]
-<<<<<<< HEAD
               .path
               .substring(dir[i].parent.path.length + 1)
               .substring(0, 1) ==
-=======
-          .path
-          .substring(dir[i].parent.path.length + 1)
-          .substring(0, 1) ==
->>>>>>> origin/master
           '.') num--;
     }
     return num;
@@ -417,7 +293,6 @@ class _FileManagerState extends State<FileManager2> {
               children: <Widget>[
                 Expanded(
                     child:
-<<<<<<< HEAD
                         Text(file.path.substring(file.parent.path.length + 1))),
                 isFile
                     ? Container()
@@ -425,28 +300,13 @@ class _FileManagerState extends State<FileManager2> {
                         '$length',
                         style: TextStyle(color: Colors.grey),
                       )
-=======
-                    Text(file.path.substring(file.parent.path.length + 1))),
-                isFile
-                    ? Container()
-                    : Text(
-                  '$length',
-                  style: TextStyle(color: Colors.grey),
-                )
->>>>>>> origin/master
               ],
             ),
             subtitle: isFile
                 ? Text(
-<<<<<<< HEAD
                     '${getFileLastModifiedTime(file)}  ${getFileSize(file)}',
                     style: TextStyle(fontSize: 12.0),
                   )
-=======
-              '${getFileLastModifiedTime(file)}  ${getFileSize(file)}',
-              style: TextStyle(fontSize: 12.0),
-            )
->>>>>>> origin/master
                 : null,
             trailing: isFile ? null : Icon(Icons.chevron_right),
           ),
@@ -515,11 +375,7 @@ class _FileManagerState extends State<FileManager2> {
 
   getFileLastModifiedTime(FileSystemEntity file) {
     DateTime dateTime =
-<<<<<<< HEAD
         File(file.resolveSymbolicLinksSync()).lastModifiedSync();
-=======
-    File(file.resolveSymbolicLinksSync()).lastModifiedSync();
->>>>>>> origin/master
 
     String time =
         '${dateTime.year}-${dateTime.month < 10 ? 0 : ''}${dateTime.month}-${dateTime.day < 10 ? 0 : ''}${dateTime.day} ${dateTime.hour < 10 ? 0 : ''}${dateTime.hour}:${dateTime.minute < 10 ? 0 : ''}${dateTime.minute}';
@@ -593,10 +449,4 @@ class ChoiceCard extends StatelessWidget {
       ),
     );
   }
-<<<<<<< HEAD
 }
-=======
-
-}
-
->>>>>>> origin/master
