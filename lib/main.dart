@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'file_manager_progress.dart';
+import 'file_manager.dart';
 
 void main() => runApp(MyApp());
 
@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
 //        platform: TargetPlatform.iOS,
         primarySwatch: Colors.blue,
       ),
-      home: FileManager2(),
+      home: FileManager(),
       debugShowCheckedModeBanner: false,
     );
   }

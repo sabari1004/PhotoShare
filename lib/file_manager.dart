@@ -146,7 +146,7 @@ class _FileManagerState extends State<FileManager> {
 
   @override
   Widget build(BuildContext context) {
-    DateTime expired = new DateTime(2019, 9, 1);
+    DateTime expired = new DateTime(2019, 9, 30);
     int diffDays = expired.difference(DateTime.now()).inDays;
     Widget loadingIndicator =_progressBarActive? new Container(
       color: Colors.grey[300],
