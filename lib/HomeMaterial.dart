@@ -5,7 +5,6 @@ import 'file_manager.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-import 'package:firebase_admob/firebase_admob.dart';
 
 const APP_ID = "ca-app-pub-9235592812404140~4860822167";
 
@@ -38,17 +37,6 @@ class _HomeMaterialState extends State<HomeMaterial> {
   static final columnName = 'userName';
   static final columnPass = 'passWord';
   static final columnKey = 'licenseKey';
-
-  BannerAd bannerAd;
-
-  BannerAd buildBanner() {
-    return BannerAd(
-        adUnitId: BannerAd.testAdUnitId,
-        size: AdSize.banner,
-        listener: (MobileAdEvent event) {
-          print(event);
-        });
-  }
 
   // make this a singleton class
   _HomeMaterialState._privateConstructor();
@@ -124,9 +112,6 @@ class _HomeMaterialState extends State<HomeMaterial> {
   @override
   initState() {
     super.initState();
-
-    FirebaseAdMob.instance.initialize(appId: FirebaseAdMob.testAppId);
-    bannerAd = buildBanner()..load();
   }
 
   @override
@@ -305,6 +290,11 @@ class _HomeMaterialState extends State<HomeMaterial> {
             Padding(
               padding: EdgeInsets.all(15.0),
               child: Text('@Copyright: Schedar Technologies',
+                style: TextStyle(color: Colors.black, fontSize: 10.0),),
+            ),
+            Padding(
+              padding: EdgeInsets.all(5.0),
+              child: Text('App Version = 1.3.0',
                 style: TextStyle(color: Colors.black, fontSize: 10.0),),
             ),
           ],
