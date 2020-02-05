@@ -11,6 +11,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'HomeMaterial.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 
 class FileManager extends StatefulWidget {
   @override
@@ -33,6 +34,9 @@ class _FileManagerState extends State<FileManager> {
   String _responseFromNativeCode = 'Waiting for Response...';
   static const platform = const MethodChannel('flutter.native/helper');
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo();
+  String adMobID = "ca-app-pub-9235592812404140/9053904962";
+  String appID = "ca-app-pub-9235592812404140~4860822167";
   /*final HomeMaterial homeMaterial;
 
     // In the constructor, require a Person
@@ -43,6 +47,9 @@ class _FileManagerState extends State<FileManager> {
     super.initState();
     getPermission();
     getConnectionStatus();
+    FirebaseAdMob.instance.initialize(appId: appID).then((response){
+      createBannerAd()..load()..show();
+    });
   }
 
   void _submit() {
@@ -201,6 +208,17 @@ class _FileManagerState extends State<FileManager> {
         ),
       );
     }
+  }
+
+  BannerAd createBannerAd() {
+    return BannerAd(
+      adUnitId: BannerAd.testAdUnitId,
+      size: AdSize.banner,
+      targetingInfo: targetingInfo,
+      listener: (MobileAdEvent event) {
+        print("BannerAd event $event");
+      },
+    );
   }
 
   Future<bool> loginAction() async {
@@ -585,5 +603,6 @@ class ChoiceCard extends StatelessWidget {
       ),
     );
   }
+
 }
 
