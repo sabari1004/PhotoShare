@@ -35,8 +35,8 @@ class _FileManagerState extends State<FileManager> {
   static const platform = const MethodChannel('flutter.native/helper');
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo();
-  String adMobID = "ca-app-pub-9235592812404140/9053904962";
-  String appID = "ca-app-pub-9235592812404140~4860822167";
+  static final String adMobID = "ca-app-pub-9235592812404140/9053904962";
+  static final String appID = "ca-app-pub-9235592812404140~4860822167";
   /*final HomeMaterial homeMaterial;
 
     // In the constructor, require a Person
@@ -153,7 +153,7 @@ class _FileManagerState extends State<FileManager> {
 
   @override
   Widget build(BuildContext context) {
-    DateTime expired = new DateTime(2020, 03, 05);
+    DateTime expired = new DateTime(2020, 07, 15);
     int diffDays = expired.difference(DateTime.now()).inDays;
     Widget loadingIndicator =_progressBarActive? new Container(
       color: Colors.grey[300],
@@ -212,7 +212,7 @@ class _FileManagerState extends State<FileManager> {
 
   BannerAd createBannerAd() {
     return BannerAd(
-      adUnitId: BannerAd.testAdUnitId,
+      adUnitId: adMobID,
       size: AdSize.banner,
       targetingInfo: targetingInfo,
       listener: (MobileAdEvent event) {
@@ -273,7 +273,8 @@ class _FileManagerState extends State<FileManager> {
             ],
           ),
           backgroundColor: Color(0xfff3f3f3),
-          floatingActionButton: new FloatingActionButton.extended(
+/*          floatingActionButton: new FloatingActionButton.extended(
+            elevation: 500,
             onPressed: () async {
               showDialog(
                   context: context,
@@ -304,6 +305,42 @@ class _FileManagerState extends State<FileManager> {
             ),
             label: Text("Upload"),
             tooltip: "First",
+          ),*/
+          floatingActionButton: Padding(
+            padding: const EdgeInsets.only(bottom: 50.0),
+            child: FloatingActionButton.extended(
+              elevation: 500,
+              onPressed: () async {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return SimpleDialog(
+                        elevation: 0.0,
+                        backgroundColor: Colors.transparent,
+                        children: <Widget>[
+                          Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                          Text("\nUploading Photos ...",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15.0,
+                              ))
+                        ],
+                      );
+                      //Center(child: CircularProgressIndicator(),);
+                    });
+                await loginAction();
+                Navigator.pop(context);
+                //_checkWifi();
+              },
+              icon: Icon(
+                Icons.file_upload,
+              ),
+              label: Text("Upload"),
+              tooltip: "First",
+            )
           ),
           body: Scrollbar(
             child: ListView.builder(
@@ -329,7 +366,7 @@ class _FileManagerState extends State<FileManager> {
   }
 
   Widget _buildWidget1() {
-    DateTime expired = new DateTime(2020, 03, 05);
+    DateTime expired = new DateTime(2020, 07, 15);
     int diffDays = expired.difference(DateTime.now()).inDays;
     return Scaffold(
         appBar: AppBar(

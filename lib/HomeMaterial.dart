@@ -229,7 +229,20 @@ class _HomeMaterialState extends State<HomeMaterial> {
                       ),
                     ]))),
       ),
-      floatingActionButton: new FloatingActionButton.extended(
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(bottom: 50.0),
+          child: FloatingActionButton.extended(
+            onPressed: () {
+              _onAlertWithCustomImagePressed(context);
+            },
+            icon: Icon(
+              Icons.info_outline,
+            ),
+            label: Text("About"),
+            tooltip: "First",
+          ),
+        ),
+      /*floatingActionButton: new FloatingActionButton.extended(
         onPressed: () {
           _onAlertWithCustomImagePressed(context);
         },
@@ -238,7 +251,7 @@ class _HomeMaterialState extends State<HomeMaterial> {
         ),
         label: Text("About"),
         tooltip: "First",
-      ),
+      ),*/
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
