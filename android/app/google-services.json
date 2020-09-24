@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "263173198047",
+    "firebase_url": "https://upload-photos-for-enterprise.firebaseio.com",
+    "project_id": "upload-photos-for-enterprise",
+    "storage_bucket": "upload-photos-for-enterprise.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:263173198047:android:9052342ca13e7aa1d9596a",
+        "android_client_info": {
+          "package_name": "com.schedar.enterprise.photoshare"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "263173198047-g95pcal8tvviihsab1uumfo8agvoelr8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAgrGQXRIFckjEBRu9jR6QA0xwx2CRqtA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "263173198047-g95pcal8tvviihsab1uumfo8agvoelr8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
