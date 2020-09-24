@@ -11,7 +11,10 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'HomeMaterial.dart';
-import 'package:firebase_admob/firebase_admob.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart' as path;
+import 'package:android_multiple_identifier/android_multiple_identifier.dart';
+//import 'package:firebase_admob/firebase_admob.dart';
 
 class FileManager extends StatefulWidget {
   @override
@@ -34,22 +37,99 @@ class _FileManagerState extends State<FileManager> {
   String _responseFromNativeCode = 'Waiting for Response...';
   static const platform = const MethodChannel('flutter.native/helper');
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo();
-  static final String adMobID = "ca-app-pub-9235592812404140/9053904962";
-  static final String appID = "ca-app-pub-9235592812404140~4860822167";
+
+  static final _databaseName = "upload.db";
+  static final _databaseVersion = 1;
+
+  static final table = 'DATA';
+  static final licensetable = 'license';
+  static final columnIp = 'ipAddress';
+  static final columnRowId = 'rowId';
+  static final columnPath = 'folderPath';
+  static final columnName = 'userName';
+  static final columnPass = 'passWord';
+  static final columnKey = 'licenseKey';
+  static final columnCode = 'clientCode';
+  int countData;
+  int countLicense;
+
+  //MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo();
+  //static final String adMobID = "ca-app-pub-9235592812404140/9053904962";
+  //static final String appID = "ca-app-pub-9235592812404140~4860822167";
   /*final HomeMaterial homeMaterial;
 
     // In the constructor, require a Person
   _FileManagerState({Key key, @required this.homeMaterial}) : super();*/
+
+  // make this a singleton class
+  _FileManagerState._privateConstructor();
+  static final _FileManagerState instance =
+  _FileManagerState._privateConstructor();
+  
+  _FileManagerState();
 
   @override
   void initState() {
     super.initState();
     getPermission();
     getConnectionStatus();
-    FirebaseAdMob.instance.initialize(appId: appID).then((response){
+    /*FirebaseAdMob.instance.initialize(appId: appID).then((response){
       createBannerAd()..load()..show();
-    });
+    });*/
+  }
+
+  // only have a single app-wide reference to the database
+  static Database _database;
+  Future<Database> get database async {
+    if (_database != null) return _database;
+    // lazily instantiate the db the first time it is accessed
+    _database = await _initDatabase();
+    return _database;
+  }
+
+  // this opens the database (and creates it if it doesn't exist)
+  _initDatabase() async {
+    Directory documentsDirectory = await getApplicationDocumentsDirectory();
+    String path1 = path.join(documentsDirectory.path, _databaseName);
+    return await openDatabase(path1,
+        version: _databaseVersion, onCreate: _onCreate);
+  }
+
+  // SQL code to create the database table
+  Future _onCreate(Database db, int version) async {
+    await db.execute('''
+          CREATE TABLE $table (
+            $columnIp CHAR(20) PRIMARY KEY,
+            $columnRowId CHAR(10) UNIQUE,
+            $columnPath CHAR(200) NOT NULL,
+            $columnName CHAR(50)  NOT NULL,
+            $columnPass CHAR(50)  NOT NULL,
+            $columnKey CHAR(50)  NOT NULL
+          )
+          ''');
+    await db.execute('''
+          CREATE TABLE $licensetable (
+            fdClientID CHAR(20) PRIMARY KEY,
+            fdLicenseSince DATE NOT NULL,
+            fdLicValidTill DATE NOT NULL
+          )
+          ''');
+  }
+
+  Future<int> query() async {
+    Database db = await instance.database;
+    countData =
+        Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM $table'));
+    return Sqflite.firstIntValue(
+        await db.rawQuery('SELECT COUNT(*) FROM $table'));
+  }
+
+  Future<int> queryLicense() async {
+    Database db = await instance.database;
+    countLicense = Sqflite.firstIntValue(
+        await db.rawQuery('SELECT COUNT(*) FROM $licensetable'));
+    return Sqflite.firstIntValue(
+        await db.rawQuery('SELECT COUNT(*) FROM $licensetable'));
   }
 
   void _submit() {
@@ -131,6 +211,8 @@ class _FileManagerState extends State<FileManager> {
           Permission.ReadExternalStorage);
       bool permission2 = await SimplePermissions.checkPermission(
           Permission.WriteExternalStorage);
+      bool requestResponse = await AndroidMultipleIdentifier.requestPermission();
+      print("NEVER ASK AGAIN SET TO: ${AndroidMultipleIdentifier.neverAskAgain}");
       if (!permission1) {
         await SimplePermissions.requestPermission(
             Permission.ReadExternalStorage);
@@ -153,7 +235,7 @@ class _FileManagerState extends State<FileManager> {
 
   @override
   Widget build(BuildContext context) {
-    DateTime expired = new DateTime(2020, 07, 15);
+    DateTime expired = new DateTime(2020, 10, 31);
     int diffDays = expired.difference(DateTime.now()).inDays;
     Widget loadingIndicator =_progressBarActive? new Container(
       color: Colors.grey[300],
@@ -210,7 +292,7 @@ class _FileManagerState extends State<FileManager> {
     }
   }
 
-  BannerAd createBannerAd() {
+/*  BannerAd createBannerAd() {
     return BannerAd(
       adUnitId: adMobID,
       size: AdSize.banner,
@@ -219,7 +301,7 @@ class _FileManagerState extends State<FileManager> {
         print("BannerAd event $event");
       },
     );
-  }
+  }*/
 
   Future<bool> loginAction() async {
     //replace the below line of code with your login request
@@ -366,7 +448,7 @@ class _FileManagerState extends State<FileManager> {
   }
 
   Widget _buildWidget1() {
-    DateTime expired = new DateTime(2020, 07, 15);
+    DateTime expired = new DateTime(2020, 10, 31);
     int diffDays = expired.difference(DateTime.now()).inDays;
     return Scaffold(
         appBar: AppBar(

@@ -38,8 +38,8 @@ public class MainActivity extends FlutterActivity {
     private static String password; //= "Few@HuPhot0$";
     private static String username; //= "-svc-HHU.PU";
     private static String strPCPath; //= "smb://192.168.2.47/NotificationPhotosUpload/";
-    private static final String strSdcardPath = Environment.getExternalStorageDirectory()+"/Pictures";
-    private static final String Agentry = "/data/data/com.sabel.flutterfilemanager/app_flutter/upload.db";
+    private static final String strSdcardPath = Environment.getExternalStorageDirectory() + "/Pictures";
+    private static final String Agentry = "/data/data/com.sabel.sap.flutterfilemanager/app_flutter/upload.db";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,10 +66,9 @@ public class MainActivity extends FlutterActivity {
                 new MethodCallHandler() {
                     @Override
                     public void onMethodCall(MethodCall methodCall, MethodChannel.Result result) {
-                        try{
+                        try {
                             selectData();
-                        }
-                        catch (SQLiteException e){
+                        } catch (SQLiteException e) {
                             Log.e(getClass().getSimpleName(),
                                     "Could not select the database");
                         }
@@ -121,7 +120,7 @@ public class MainActivity extends FlutterActivity {
             }
             for (int i = 0; i < listOfFiles.length; i++) {
                 if (!listOfFiles[i].toString().toLowerCase().isEmpty()) {
-                    uploadToSmb(strPCPath,listOfFiles[i]);
+                    uploadToSmb(strPCPath, listOfFiles[i]);
                 }
             }
         } catch (Exception e) {
@@ -140,30 +139,65 @@ public class MainActivity extends FlutterActivity {
             int lenghtOfFile = (int) localFile.length();
             byte[] data = FileUtils.readFileToByteArray(localFile);
             inputStream = new ByteArrayInputStream(data);
-            String path = destinationPath + localFile.getName();
-            NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication("FEWADOM", username, password);
-            SmbFile remoteFile1 = new SmbFile(path, auth);
-            sfos = new SmbFileOutputStream(remoteFile1);
-            long total = 0;
-            int count;
-            while ((count = inputStream.read(BUFFER)) > 0) {
-                total += count;
-                // publishing the progress....
-                // After this onProgressUpdate will be called
-                int percentage = (int) ((total / (float) lenghtOfFile) * 100);
-                //publishProgress(percentage);
-                // publishProgress((int) ((total * 100) / lenghtOfFile));
-                // writing data to file
-                sfos.write(BUFFER, 0, count);
+            if (!localFile.getName().startsWith("1")) {
+                String[] splitFileName0 = localFile.getName().split("\\.");
+                String[] splitFileName = splitFileName0[0].split("_");
+                int notifNum = (Integer.parseInt(splitFileName[1]) + Integer.parseInt(splitFileName[0])) / 2;
+                String decodedName = Integer.toString(notifNum) + "_" + splitFileName[1] + ".jpg";
+                if (decodedName.startsWith("3")) {
+                    String path = destinationPath + "NotificationPhotosUpload/" + decodedName;
+                    //String path = "smb://192.168.2.115/NotificationPhotosUpload/" + decodedName;
+                    //String path = destinationPath + localFile.getName();
+                    NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication("FEWADOM", username, password);
+                    SmbFile remoteFile1 = new SmbFile(path, auth);
+                    sfos = new SmbFileOutputStream(remoteFile1);
+                    long total = 0;
+                    int count;
+                    while ((count = inputStream.read(BUFFER)) > 0) {
+                        total += count;
+                        // publishing the progress....
+                        // After this onProgressUpdate will be called
+                        int percentage = (int) ((total / (float) lenghtOfFile) * 100);
+                        //publishProgress(percentage);
+                        // publishProgress((int) ((total * 100) / lenghtOfFile));
+                        // writing data to file
+                        sfos.write(BUFFER, 0, count);
 
+                    }
+                    sfos.flush();
+                    inputStream.close();
+                    sfos.close();
+                }
+            } else if (localFile.getName().startsWith("1")) {
+                {
+                    //String path = "smb://192.168.2.115/OfflinePhotosUpload/" + localFile.getName();
+                    String path = destinationPath + "OfflinePhotosUpload/" + localFile.getName();
+                    //String path = destinationPath + localFile.getName();
+                    NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication("FEWADOM", username, password);
+                    SmbFile remoteFile1 = new SmbFile(path, auth);
+                    sfos = new SmbFileOutputStream(remoteFile1);
+                    long total = 0;
+                    int count;
+                    while ((count = inputStream.read(BUFFER)) > 0) {
+                        total += count;
+                        // publishing the progress....
+                        // After this onProgressUpdate will be called
+                        int percentage = (int) ((total / (float) lenghtOfFile) * 100);
+                        //publishProgress(percentage);
+                        // publishProgress((int) ((total * 100) / lenghtOfFile));
+                        // writing data to file
+                        sfos.write(BUFFER, 0, count);
+
+                    }
+                    sfos.flush();
+                    inputStream.close();
+                    sfos.close();
+                }
             }
-            sfos.flush();
-            inputStream.close();
-            sfos.close();
 
-            if(localFile.delete()){
+            if (localFile.delete()) {
                 System.out.println(localFile.getName() + " is deleted!");
-            }else{
+            } else {
                 System.out.println("Delete operation is failed.");
             }
 
@@ -186,7 +220,7 @@ public class MainActivity extends FlutterActivity {
             try {
                 NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication("FEWADOM", username, password);
                 //SmbSession.logon(UniAddress.getByName(ip),auth);
-                smbFileToDownload = new SmbFile(strPCPath,auth);
+                smbFileToDownload = new SmbFile(strPCPath, auth);
                 String smbFileName = smbFileToDownload.getName();
                 if (!smbFileName.toLowerCase().isEmpty()) {
                     InputStream inputStream = smbFileToDownload.getInputStream();
@@ -232,7 +266,8 @@ public class MainActivity extends FlutterActivity {
                     do {
                         ip = c.getString(c
                                 .getColumnIndex("ipAddress"));
-                        strPCPath = "smb://" + ip + "/" + c.getString(c.getColumnIndex("folderPath")) + "/";
+                        strPCPath = "smb://" + ip + "/";
+                        //+ c.getString(c.getColumnIndex("folderPath")) + "/";
                         username = c.getString(c
                                 .getColumnIndex("userName"));
                         password = c.getString(c
