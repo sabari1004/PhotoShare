@@ -24,12 +24,14 @@ class HomeMaterial extends StatefulWidget {
 
 class _HomeMaterialState extends State<HomeMaterial> {
   final _formKey = GlobalKey<FormState>();
+  final _formKey1 = GlobalKey<FormState>();
   String ipAddress;
   String folderPath;
   String userName;
   String passWord;
   String licenseKey;
   String clientCode;
+  String sapID = "";
   String serialNumber;
   String _platformVersion = 'Unknown';
   String _imei = 'Unknown';
@@ -37,6 +39,7 @@ class _HomeMaterialState extends State<HomeMaterial> {
   String _androidID = 'Unknown';
   String validLicense = "";
   String outputMsg = "";
+  String defaultMsg = "";
   int countData;
   int countLicense;
 
@@ -54,6 +57,7 @@ class _HomeMaterialState extends State<HomeMaterial> {
   static final columnPass = 'passWord';
   static final columnKey = 'licenseKey';
   static final columnCode = 'clientCode';
+  static final columnSapID = 'sapID';
 
   // make this a singleton class
   _HomeMaterialState._privateConstructor();
@@ -94,7 +98,8 @@ class _HomeMaterialState extends State<HomeMaterial> {
             $columnName CHAR(50)  NOT NULL,
             $columnPass CHAR(50)  NOT NULL,
             $columnKey CHAR(50)  NOT NULL,
-            $columnCode CHAR(50)  NOT NULL
+            $columnCode CHAR(50)  NOT NULL,
+            $columnSapID CHAR(50)  NOT NULL
           )
           ''');
     await db.execute('''
@@ -111,8 +116,17 @@ class _HomeMaterialState extends State<HomeMaterial> {
     return await db.insert(table, row);
   }
 
+  Future<int> delete() async {
+    Database db = await instance.database;
+    return await db
+        .delete(table, where: '$columnCode = ?', whereArgs: [clientCode]);
+  }
+
   Future<int> insertLicense(Map<String, dynamic> row) async {
     Database db = await instance.database;
+    final id = await db
+        .delete(licensetable, where: 'fdClientID = ?', whereArgs: [clientCode]);
+    print('deleted row id: $id');
     return await db.insert(licensetable, row);
   }
 
@@ -240,6 +254,7 @@ class _HomeMaterialState extends State<HomeMaterial> {
       passWord = result[0]["passWord"];
       licenseKey = result[0]["licenseKey"];
       clientCode = result[0]["clientCode"];
+      sapID = result[0]["sapID"];
     }
     return Future.value(countData.toString()); // return your response
   }
@@ -309,9 +324,9 @@ class _HomeMaterialState extends State<HomeMaterial> {
                               timeInSecForIos: 1,
                               backgroundColor: Colors.black,
                               textColor: Colors.white);
-                        } else if (outputMsg == "UserRegisteredAlready") {
+                        } else if (outputMsg == "UserChanged") {
                           Fluttertoast.showToast(
-                              msg: "User already registered for License",
+                              msg: "User changed successfully",
                               toastLength: Toast.LENGTH_SHORT,
                               gravity: ToastGravity.BOTTOM,
                               timeInSecForIos: 1,
@@ -343,6 +358,11 @@ class _HomeMaterialState extends State<HomeMaterial> {
                       }
                     },
                   ),
+                  IconButton(
+                      icon: Icon(Icons.info_outline),
+                      onPressed: () {
+                        _onAlertWithCustomImagePressed(context);
+                      }),
                 ],
               ),
               body: Container(
@@ -394,8 +414,8 @@ class _HomeMaterialState extends State<HomeMaterial> {
                                 leading: const Icon(Icons.person),
                                 title: new TextFormField(
                                     initialValue: userName,
-                                    decoration:
-                                        InputDecoration(labelText: 'UserName'),
+                                    decoration: InputDecoration(
+                                        labelText: 'Active Directory ID'),
                                     validator: (value) {
                                       if (value.isEmpty) {
                                         return 'Please enter your username';
@@ -410,8 +430,8 @@ class _HomeMaterialState extends State<HomeMaterial> {
                                 leading: const Icon(Icons.remove_red_eye),
                                 title: new TextFormField(
                                     initialValue: passWord,
-                                    decoration:
-                                        InputDecoration(labelText: 'Password'),
+                                    decoration: InputDecoration(
+                                        labelText: 'Active Directory Password'),
                                     //obscureText: _obscureText,
                                     validator: (value) {
                                       if (value.isEmpty) {
@@ -433,8 +453,6 @@ class _HomeMaterialState extends State<HomeMaterial> {
                                     validator: (value) {
                                       if (value.isEmpty) {
                                         return 'Please enter the license key';
-                                      } else if (value != "Abcdef@123&") {
-                                        return 'Invalid license key';
                                       } else {
                                         licenseKey = value;
                                       }
@@ -459,113 +477,123 @@ class _HomeMaterialState extends State<HomeMaterial> {
                                     onSaved: (val) =>
                                         setState(() => clientCode = val)),
                               ),
+                              new ListTile(
+                                leading: const Icon(Icons.business_center),
+                                title: new TextFormField(
+                                    //obscureText: _obscureText,
+                                    initialValue: sapID,
+                                    decoration: InputDecoration(
+                                        labelText: 'SAP User ID'),
+                                    validator: (value) {
+                                      if (value.isEmpty) {
+                                        return 'Please enter the SAP User ID';
+                                      } else {
+                                        sapID = value;
+                                      }
+                                    },
+                                    onSaved: (val) =>
+                                        setState(() => sapID = val)),
+                              ),
                             ]))),
               ),
-              floatingActionButton:
-                  Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-                FloatingActionButton.extended(
-                  backgroundColor: Colors.amberAccent,
-                  foregroundColor: Colors.black,
-                  onPressed: () async {
-                    // Validate returns true if the form is valid, or false
-                    // otherwise.
-                    if (_formKey.currentState.validate()) {
-                      await _verifyLicense(validLicense);
-                      if (outputMsg == "Success") {
-                        Fluttertoast.showToast(
-                            msg:
-                                "License Registration Successful \n Settings Saved",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            timeInSecForIos: 1,
-                            backgroundColor: Colors.black,
-                            textColor: Colors.white);
-                      } else if (outputMsg == "QuotaReached") {
-                        Fluttertoast.showToast(
-                            msg:
-                                "License quota reached. Please apply for new license",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            timeInSecForIos: 1,
-                            backgroundColor: Colors.black,
-                            textColor: Colors.white);
-                      } else if (outputMsg == "LicenseExpired") {
-                        Fluttertoast.showToast(
-                            msg:
-                                "License Expired. Please contact Administrator",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            timeInSecForIos: 1,
-                            backgroundColor: Colors.black,
-                            textColor: Colors.white);
-                      } else if (outputMsg == "InvalidClientID") {
-                        Fluttertoast.showToast(
-                            msg:
-                                "Invalid Client ID. Please contact Administrator",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            timeInSecForIos: 1,
-                            backgroundColor: Colors.black,
-                            textColor: Colors.white);
-                      } else if (outputMsg == "UserRegisteredAlready") {
-                        Fluttertoast.showToast(
-                            msg: "User already registered for License",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            timeInSecForIos: 1,
-                            backgroundColor: Colors.black,
-                            textColor: Colors.white);
-                      } else if (outputMsg == "InactiveUser") {
-                        Fluttertoast.showToast(
-                            msg:
-                                "Inactive Device. Please contact Administrator",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            timeInSecForIos: 1,
-                            backgroundColor: Colors.black,
-                            textColor: Colors.white);
-                      } else {
-                        Fluttertoast.showToast(
-                            msg: "License Registration Unsuccessful",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            timeInSecForIos: 1,
-                            backgroundColor: Colors.black,
-                            textColor: Colors.white);
+              floatingActionButton: Stack(children: <Widget>[
+                Align(
+                    alignment: Alignment.bottomLeft,
+                    child: FloatingActionButton.extended(
+                      backgroundColor: Colors.amberAccent,
+                      foregroundColor: Colors.black,
+                      onPressed: () {
+                        _onGetDefaultValues(context);
+                      },
+                      icon: Icon(
+                        Icons.cloud_download,
+                      ),
+                      label: Text("Default Vals"),
+                      tooltip: "First",
+                      heroTag: "btn2",
+                    )),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: FloatingActionButton.extended(
+                    backgroundColor: Colors.amberAccent,
+                    foregroundColor: Colors.black,
+                    onPressed: () async {
+                      // Validate returns true if the form is valid, or false
+                      // otherwise.
+                      if (_formKey.currentState.validate()) {
+                        await _verifyLicense(validLicense);
+                        if (outputMsg == "Success") {
+                          Fluttertoast.showToast(
+                              msg:
+                                  "License Registration Successful \n Settings Saved",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIos: 1,
+                              backgroundColor: Colors.black,
+                              textColor: Colors.white);
+                        } else if (outputMsg == "QuotaReached") {
+                          Fluttertoast.showToast(
+                              msg:
+                                  "License quota reached. Please apply for new license",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIos: 1,
+                              backgroundColor: Colors.black,
+                              textColor: Colors.white);
+                        } else if (outputMsg == "LicenseExpired") {
+                          Fluttertoast.showToast(
+                              msg:
+                                  "License Expired. Please contact Administrator",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIos: 1,
+                              backgroundColor: Colors.black,
+                              textColor: Colors.white);
+                        } else if (outputMsg == "InvalidClientID") {
+                          Fluttertoast.showToast(
+                              msg:
+                                  "Invalid Client ID. Please contact Administrator",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIos: 1,
+                              backgroundColor: Colors.black,
+                              textColor: Colors.white);
+                        } else if (outputMsg == "UserChanged") {
+                          Fluttertoast.showToast(
+                              msg: "User changed successfully",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIos: 1,
+                              backgroundColor: Colors.black,
+                              textColor: Colors.white);
+                        } else if (outputMsg == "InactiveUser") {
+                          Fluttertoast.showToast(
+                              msg:
+                                  "Inactive Device. Please contact Administrator",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIos: 1,
+                              backgroundColor: Colors.black,
+                              textColor: Colors.white);
+                        } else {
+                          Fluttertoast.showToast(
+                              msg: "License Registration Unsuccessful",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIos: 1,
+                              backgroundColor: Colors.black,
+                              textColor: Colors.white);
+                        }
                       }
-                    }
-                  },
-                  icon: Icon(
-                    Icons.verified_user,
+                    },
+                    icon: Icon(
+                      Icons.verified_user,
+                    ),
+                    label: Text("Update"),
+                    heroTag: "btn1",
                   ),
-                  label: Text("Validate License"),
-                  heroTag: "btn1",
                 ),
-                SizedBox(
-                  height: 10,
-                ),
-                FloatingActionButton.extended(
-                  onPressed: () {
-                    _onAlertWithCustomImagePressed(context);
-                  },
-                  icon: Icon(
-                    Icons.info_outline,
-                  ),
-                  label: Text("About"),
-                  tooltip: "First",
-                  heroTag: "btn2",
-                )
               ]),
-              /*floatingActionButton: new FloatingActionButton.extended(
-        onPressed: () {
-          _onAlertWithCustomImagePressed(context);
-        },
-        icon: Icon(
-          Icons.info_outline,
-        ),
-        label: Text("About"),
-        tooltip: "First",
-      ),*/
               floatingActionButtonLocation:
                   FloatingActionButtonLocation.centerFloat,
             );
@@ -594,6 +622,98 @@ class _HomeMaterialState extends State<HomeMaterial> {
         return alert;
       },
     );
+  }
+
+  // Get Default values
+  _onGetDefaultValues(context) {
+    Dialog errorDialog = Dialog(
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0)), //this right here
+      child: Container(
+        height: 200.0,
+        width: 300.0,
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+        child: Builder(
+            //future: queryData(),
+            builder: (context) => Form(
+                key: _formKey1,
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      new Padding(
+                        padding: EdgeInsets.all(5.0),
+                        child: Text(
+                          'Please enter the client ID',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20.0,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      new ListTile(
+                        leading: const Icon(Icons.computer),
+                        title: new TextFormField(
+                          initialValue: clientCode,
+                          //controller: TextEditingController(text: snapshot.data),
+                          decoration: InputDecoration(labelText: 'Client ID'),
+                          validator: (value) {
+                            if (value.isEmpty) {
+                              return 'Client ID';
+                            } else {
+                              clientCode = value;
+                            }
+                          },
+                          onSaved: (val) => setState(() => clientCode = val),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      new FloatingActionButton.extended(
+                        backgroundColor: Colors.amberAccent,
+                        foregroundColor: Colors.black,
+                        onPressed: () async {
+                          // Validate returns true if the form is valid, or false
+                          // otherwise.
+                          if (_formKey1.currentState.validate()) {
+                            await _getDefaultValues(outputMsg);
+                            if (defaultMsg == "Success") {
+                              Fluttertoast.showToast(
+                                  msg: "Received default values",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  timeInSecForIos: 1,
+                                  backgroundColor: Colors.black,
+                                  textColor: Colors.white);
+                            } else {
+                              Fluttertoast.showToast(
+                                  msg: "Unable to get default values",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  timeInSecForIos: 1,
+                                  backgroundColor: Colors.black,
+                                  textColor: Colors.white);
+                            }
+                          }
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => FileManager()),
+                          );
+                        },
+                        icon: Icon(
+                          Icons.check_circle_outline,
+                        ),
+                        label: Text("Submit"),
+                        heroTag: "btn1",
+                      ),
+                    ]))),
+      ),
+    );
+    showDialog(
+        context: context, builder: (BuildContext context) => errorDialog);
   }
 
   // Alert custom images
@@ -644,6 +764,9 @@ class _HomeMaterialState extends State<HomeMaterial> {
   }
 
   void _insert() async {
+    final id = await delete();
+    print('deleted row id: $id');
+
     // row to insert
     Map<String, dynamic> row = {
       _HomeMaterialState.columnIp: ipAddress,
@@ -652,16 +775,68 @@ class _HomeMaterialState extends State<HomeMaterial> {
       _HomeMaterialState.columnName: userName,
       _HomeMaterialState.columnPass: passWord,
       _HomeMaterialState.columnKey: licenseKey,
-      _HomeMaterialState.columnCode: clientCode
+      _HomeMaterialState.columnCode: clientCode,
+      _HomeMaterialState.columnSapID: sapID
     };
-    final id = await insert(row);
-    print('inserted row id: $id');
+    final id1 = await insert(row);
+    print('inserted row id: $id1');
+  }
+
+  Future<String> _getDefaultValues(String validLicense) async {
+    try {
+      var settings = new ConnectionSettings(
+          host: '192.145.238.16',
+          port: 3306,
+          user: 'amtbug5_UserPhotoLic',
+          password: "SchedarTech@1234\$",
+          db: 'amtbug5_dbPhotoShareLic');
+      var conn = await MySqlConnection.connect(settings);
+
+      var results = await conn.query(
+          'select * from tbDefaultVals where fdClientID = "' +
+              clientCode +
+              '"');
+
+      if (results != null && results.isNotEmpty) {
+        print('Query Result: $results');
+
+        for (var row in results) {
+          ipAddress = row[1];
+          folderPath = row[2];
+          userName = row[3];
+          passWord = row[4];
+          clientCode = row[5];
+          print(
+              'IP : ${row[1]}, Path : ${row[2]}, UserID: ${row[3]}, Pwd: ${row[4]}, ClientCode: ${row[5]}');
+        }
+
+        var resultLicense = await conn.query(
+            'select * from tbClientMaster where fdClientID = "' +
+                clientCode +
+                '"');
+        if (resultLicense != null) {
+          print('Query Result: $resultLicense');
+
+          for (var row in resultLicense) {
+            licenseKey = row[6];
+            print('licenseKey : ${row[6]}');
+          }
+
+          defaultMsg = "Success";
+          _insert();
+        }
+      }
+    } catch (e) {
+      print(e.toString());
+      return "failed";
+    }
   }
 
   Future<String> _verifyLicense(String validLicense) async {
     // row to insert
     String clientID;
     DateTime licenseSince;
+    String licKey;
     int licenseTotal;
     DateTime licenseTill;
     int totalUsers;
@@ -688,9 +863,10 @@ class _HomeMaterialState extends State<HomeMaterial> {
 
         for (var row in results) {
           clientID = row[0];
-          licenseSince = row[6];
-          licenseTotal = row[7];
-          licenseTill = row[8];
+          licKey = row[6];
+          licenseSince = row[7];
+          licenseTotal = row[8];
+          licenseTill = row[9];
           print(
               'Client ID : ${row[0]}, License Since : ${row[6]}, Total License: ${row[7]}, License Till: ${row[8]}');
         }
@@ -724,7 +900,7 @@ class _HomeMaterialState extends State<HomeMaterial> {
                 activeUser != 1 &&
                 activeUser != 0) {
               var insertResult = await conn.query(
-                  'insert into tbUserMaster (fdUserID, fdCllientID, tbPassword, tbIP, tbLicKey, tbMacID, tbUserActiveStatus) values (?, ?, ?, ?, ?, ?, ?)',
+                  'insert into tbUserMaster (fdUserID, fdCllientID, tbPassword, tbIP, tbLicKey, tbMacID, tbUserActiveStatus, fdSAPUserID) values (?, ?, ?, ?, ?, ?, ?, ?)',
                   [
                     userName,
                     clientCode,
@@ -732,12 +908,18 @@ class _HomeMaterialState extends State<HomeMaterial> {
                     ipAddress,
                     licenseKey,
                     _imei,
-                    1
+                    1,
+                    sapID
                   ]);
               print("Inserted ID: ${insertResult.insertId}");
 
               query();
               if (countData != 0) {
+                var insertResultTxn = await conn.query(
+                    'insert into tbUserTrxn (fdUserID, fdMacID, fdDateTime, tbClientID, fdTrxnStatus) values (?, ?, ?, ?, ?)',
+                    [userName, _imei, date2.toUtc(), clientCode, "Success"]);
+                print("Inserted ID: ${insertResultTxn.insertId}");
+                _insert();
               } else {
                 var insertResultTxn = await conn.query(
                     'insert into tbUserTrxn (fdUserID, fdMacID, fdDateTime, tbClientID, fdTrxnStatus) values (?, ?, ?, ?, ?)',
@@ -763,19 +945,19 @@ class _HomeMaterialState extends State<HomeMaterial> {
               outputMsg = "Success";
               return 'Success';
             } else if (activeUser == 1) {
+              var updateResult = await conn.query(
+                  'update tbUserMaster set fdUserID = "$userName", tbPassword = "$passWord", tbIP = "$ipAddress",'
+                  ' tbUserActiveStatus = 1, fdSAPUserID = "$sapID" where tbMacID = "$_imei"');
+              print("Inserted ID: ${updateResult.affectedRows}");
+
               var insertResult = await conn.query(
                   'insert into tbUserTrxn (fdUserID, fdMacID, fdDateTime, tbClientID, fdTrxnStatus) values (?, ?, ?, ?, ?)',
-                  [
-                    userName,
-                    _imei,
-                    date2.toUtc(),
-                    clientCode,
-                    "UserRegisteredAlready"
-                  ]);
+                  [userName, _imei, date2.toUtc(), clientCode, "UserChanged"]);
               print("Inserted ID: ${insertResult.insertId}");
-              print("User already registered");
-              outputMsg = "UserRegisteredAlready";
-              return "UserRegisteredAlready";
+              print("User Changed");
+              _insert();
+              outputMsg = "UserChanged";
+              return "UserChanged";
             } else if (activeUser == 0) {
               var insertResult = await conn.query(
                   'insert into tbUserTrxn (fdUserID, fdMacID, fdDateTime, tbClientID, fdTrxnStatus) values (?, ?, ?, ?, ?)',
